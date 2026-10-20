@@ -3,7 +3,9 @@
 	"package": "com.gblmx.versormotion.mixin.client",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"GameRendererMixin"
+		"AvatarRendererMixin",
+		"GameRendererMixin",
+		"PlayerModelMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

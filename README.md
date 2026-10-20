@@ -13,7 +13,10 @@ multivector fields from the [versor-java](https://github.com/GBLMX/versor-java) 
   - 绘制注册在 `LevelRenderEvents.END_MAIN`：`AFTER_TRANSLUCENT_TERRAIN` 位于主
     render pass 内部，`StagedVertexBuffer.upload()` 会在那里抛
     “Close the existing render pass before performing additional commands”。
-- 服务端权威判定、姿态同步、粒子烘焙尚未接入。
+- 服务端权威翻滚：`/versor roll` 触发 0.6 b/t 冲量、10 tick 无敌、20 tick 冷却；
+  状态经 S2C 同步，客户端用 `AvatarRenderer.setupRotations` 与 `PlayerModel.setupAnim`
+  叠加转子翻转与四肢收拢。
+- 服务端权威判定、攻击动作、粒子烘焙尚未接入。
 
 ## 环境
 
@@ -61,6 +64,7 @@ WorldEdit 风格子命令，全部为只读查询，不需要玩家实体，因�
 /versor field at <pos>
 /versor motion rotation <axis> <omega> <time> <point>
 /versor sweep rotation <axis> <omega> <t0> <t1> <samples> <point>
+/versor roll                           # 翻滚（需玩家执行者）
 /vm ...                                # 别名
 ```
 

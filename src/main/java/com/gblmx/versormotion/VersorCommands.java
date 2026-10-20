@@ -12,6 +12,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 import vsr.Calculus;
 import vsr.E3;
@@ -33,6 +34,8 @@ public final class VersorCommands {
 		LiteralCommandNode<CommandSourceStack> root = dispatcher.register(
 				Commands.literal("versor")
 						.executes(ctx -> usage(ctx.getSource()))
+						.then(Commands.literal("roll")
+								.executes(VersorCommands::roll))
 						.then(Commands.literal("field")
 								.then(Commands.literal("at")
 										.then(Commands.argument("pos", Vec3Argument.vec3(false))
@@ -62,7 +65,16 @@ public final class VersorCommands {
 	private static int usage(CommandSourceStack source) {
 		source.sendSuccess(() -> Component.literal(
 				"versor: field at <pos> | motion rotation <axis> <omega> <time> <point>"
-						+ " | sweep rotation <axis> <omega> <t0> <t1> <samples> <point>"), false);
+						+ " | sweep rotation <axis> <omega> <t0> <t1> <samples> <point> | roll"), false);
+		return 1;
+	}
+
+	private static int roll(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer player = ctx.getSource().getPlayerOrException();
+		if (!RollManager.start(player)) {
+			ctx.getSource().sendFailure(Component.literal("roll is on cooldown"));
+			return 0;
+		}
 		return 1;
 	}
 
