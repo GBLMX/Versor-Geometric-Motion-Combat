@@ -881,7 +881,7 @@ wheels = [
 [[package]]
 name = "versor-manim"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "av" },
     { name = "manimgl" },

@@ -187,8 +187,9 @@ and [`lib/versor-java/docs/KERNEL_SCHEDULING.md`](lib/versor-java/docs/KERNEL_SC
 ## Visualization
 
 [`tools/manim/`](tools/manim/README.md) contains the fixed ManimGL environment
-(`pyproject.toml` + `uv.lock`), an E3 rotor scene driven by `versor-java`, and
-the migrated STA/Cl(1,3) scene. Run the integration test with:
+(`pyproject.toml` + `uv.lock`), `versor_ga` (a small E3/PGA/CGA library for scene
+authoring), an E3 rotor scene driven by `versor-java`, and the migrated STA/Cl(1,3)
+scene. Run the integration test with:
 
 ```bash
 cd tools/manim

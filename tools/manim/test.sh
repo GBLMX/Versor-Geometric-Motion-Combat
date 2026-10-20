@@ -18,6 +18,7 @@ java -cp "$VERSOR/out:$HERE/bridge/out" vsr.bridge.VersorManimDump \
 echo "== manim render =="
 cd "$HERE"
 uv sync --frozen --no-config
+uv run --frozen --no-config python -m unittest discover -s tests -v
 uv run --frozen --no-config manimgl "$HERE/versor_scene.py" VersorRotor \
   -l -w --video_dir "$HERE/videos"
 

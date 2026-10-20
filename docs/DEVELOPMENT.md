@@ -94,15 +94,21 @@ The ManimGL environment is pinned by `tools/manim/pyproject.toml` and
 `tools/manim/uv.lock` (Python 3.14, ManimGL git commit, `av`). It no longer
 depends on `/tmp`.
 
+`tools/manim/versor_ga/` is a small E3/PGA/CGA library for animation authoring:
+multivectors with `.mv`, geometric wrappers with `.to_mobject()`, and
+`RotorAnimation` / `MotorAnimation`.
+
 ```bash
 cd tools/manim
 uv sync --frozen --no-config
+uv run --frozen --no-config python -m unittest discover -s tests -v
+uv run --frozen --no-config manimgl ga_demo.py VersorGADemo -l -w --video_dir videos
 ./test.sh
 ```
 
 `test.sh` runs the 454 algebra checks, exports `data/versor-rotor.json` using
-`vsr.E3`, and renders `videos/VersorRotor.mp4`. The STA scene is under
-`tools/manim/sta/` and requires Wolfram Engine 15.0. See
+`vsr.E3`, runs the `versor_ga` tests, and renders `videos/VersorRotor.mp4`. The
+STA scene is under `tools/manim/sta/` and requires Wolfram Engine 15.0. See
 [`tools/manim/README.md`](../tools/manim/README.md).
 
 ## Cross-library benchmark

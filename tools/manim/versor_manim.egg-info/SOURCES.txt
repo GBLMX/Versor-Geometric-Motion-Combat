@@ -1,0 +1,12 @@
+README.md
+pyproject.toml
+tests/test_versor_ga.py
+versor_ga/__init__.py
+versor_ga/algebra.py
+versor_ga/animation.py
+versor_ga/presets.py
+versor_manim.egg-info/PKG-INFO
+versor_manim.egg-info/SOURCES.txt
+versor_manim.egg-info/dependency_links.txt
+versor_manim.egg-info/requires.txt
+versor_manim.egg-info/top_level.txt
