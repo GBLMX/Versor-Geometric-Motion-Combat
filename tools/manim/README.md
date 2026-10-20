@@ -12,9 +12,10 @@ Clifford algebra library written for animation authoring.
 | `versor_ga/` | E3/PGA3/CGA3 kernel, geometric wrappers, KDE palette, flat JSON bridge, and Manim animations. |
 | `ga_demo.py` | Rotor, motor, plane, line, point, and sphere demo. |
 | `versor_scene.py` | Scene driven by `data/versor-rotor.json` from `versor-java`. |
-| `bridge_data/` | Wolfram exporter and checked-in `data/demo.json` following the flat record contract. |
+| `bridge_data/` | Wolfram exporters and checked-in `data/demo.json` / `data/zeta.json` following the flat record contract. |
 | `bridge_scene.py` | ManimGL renderer for the flat JSON curves and scalar series. |
 | `bridge_showcase.py` | Bars/table scene and 3D surface/curve/scatter scene. |
+| `zeta_scene.py` | Animated `zeta(1/2 + i t)` trajectory on the critical line. |
 | `bridge/VersorManimDump.java` | Generates the rotor samples using `vsr.E3`. |
 | `sta/` | The migrated STA/Cl(1,3) scene and Wolfram exporter. |
 | `tests/` | `versor_ga` algebra and Manim adapter tests. |
@@ -148,9 +149,11 @@ path because Wolfram's CJK path handling is unreliable on this machine):
 ```bash
 cd tools/manim
 wolframscript -file bridge_data/generate_data.wls
+wolframscript -file bridge_data/zeta.wls
 uv run --frozen --no-config manimgl bridge_scene.py JsonBridgeScene -l -w --video_dir videos
 uv run --frozen --no-config manimgl bridge_showcase.py BridgeChartsScene -l -w --video_dir videos
 uv run --frozen --no-config manimgl bridge_showcase.py Bridge3DScene -l -w --video_dir videos
+uv run --frozen --no-config manimgl zeta_scene.py ZetaScene -l -w --video_dir videos
 ```
 
 The Wolfram side exports `Normal[records]` to `bridge_data/data/demo.json`.
@@ -181,14 +184,15 @@ The script:
 1. runs `lib/versor-java/build.sh` (454 algebra checks);
 2. compiles `bridge/VersorManimDump.java` against `lib/versor-java/out`;
 3. writes `data/versor-rotor.json` (61 E3 rotor samples);
-4. runs `bridge_data/generate_data.wls` when `wolframscript` is available and
-   asserts the flat records (otherwise uses the checked-in JSON);
+4. runs `bridge_data/generate_data.wls` and `bridge_data/zeta.wls` when
+   `wolframscript` is available and asserts the flat records (otherwise uses
+   the checked-in JSON);
 5. runs the `versor_ga` and bridge unit tests;
-6. renders `VersorRotor`, `JsonBridgeScene`, `BridgeChartsScene`, and
-   `Bridge3DScene` at low quality into `videos/`.
+6. renders `VersorRotor`, `JsonBridgeScene`, `BridgeChartsScene`,
+   `Bridge3DScene`, and `ZetaScene` at low quality into `videos/`.
 
 Expected outputs: `VersorRotor.mp4`, `JsonBridgeScene.mp4`,
-`BridgeChartsScene.mp4`, and `Bridge3DScene.mp4`.
+`BridgeChartsScene.mp4`, `Bridge3DScene.mp4`, and `ZetaScene.mp4`.
 
 ## STA scene
 

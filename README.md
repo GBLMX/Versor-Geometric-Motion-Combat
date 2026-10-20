@@ -192,7 +192,8 @@ authoring), an E3 rotor scene driven by `versor-java`, and the migrated STA/Cl(1
 scene. The `versor_ga.KDE` palette follows the active KDE CachyOS Nord scheme and
 the fish/zsh syntax colors. `bridge_scene.py` and `bridge_showcase.py`
 demonstrate the flat Wolfram -> JSON -> ManimGL contract in `versor_ga.bridge`,
-including curves, bars, tables, surfaces, and 3D points. Run the integration
+including curves, bars, tables, surfaces, and 3D points. `zeta_scene.py`
+animates the Riemann zeta trajectory on the critical line. Run the integration
 test with:
 
 ```bash

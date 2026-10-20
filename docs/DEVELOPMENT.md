@@ -104,8 +104,9 @@ The flat Wolfram -> JSON bridge is `versor_ga/bridge.py`: records carry
 `id`, `kind`, `style`, and either `points` or `values`. `bridge_data/generate_data.wls`
 exports `bridge_data/data/demo.json`; `bridge_scene.py` consumes the 2D curves
 and `bridge_showcase.py` renders bars, a table, a 3D surface, a space curve, and
-scatter points without invoking Wolfram during rendering. Rebuild the demo data
-from `tools/manim`:
+scatter points without invoking Wolfram during rendering. `zeta_scene.py` uses
+the same flat bridge to animate `zeta(1/2 + i t)` from
+`bridge_data/zeta.wls`. Rebuild the demo data from `tools/manim`:
 
 ```bash
 wolframscript -file bridge_data/generate_data.wls

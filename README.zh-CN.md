@@ -184,7 +184,8 @@ data/versormotion/combat.json
 STA/Cl(1,3) 场景。`versor_ga.KDE` 调色板取自当前 KDE CachyOS Nord 方案
 与 fish/zsh 语法高亮。`bridge_scene.py` 和 `bridge_showcase.py` 演示
 `versor_ga.bridge` 的扁平 Wolfram -> JSON -> ManimGL 数据契约，覆盖曲线、
-柱状图、表格、曲面与 3D 点。联调测试：
+柱状图、表格、曲面与 3D 点。`zeta_scene.py` 演示临界线上的 Riemann zeta
+轨迹动画。联调测试：
 
 ```bash
 cd tools/manim
