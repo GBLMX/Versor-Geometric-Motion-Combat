@@ -118,8 +118,9 @@ uv run --frozen --no-config manimgl ga_demo.py VersorGADemo -l -w --video_dir vi
 ```
 
 `test.sh` runs the 454 algebra checks, exports `data/versor-rotor.json` using
-`vsr.E3`, runs the `versor_ga` tests, and renders `videos/VersorRotor.mp4`. The
-STA scene is under `tools/manim/sta/` and requires Wolfram Engine 15.0. See
+`vsr.E3`, runs the `versor_ga` and bridge tests, and renders
+`videos/VersorRotor.mp4` plus `videos/JsonBridgeScene.mp4`. The STA scene is
+under `tools/manim/sta/` and requires Wolfram Engine 15.0. See
 [`tools/manim/README.md`](../tools/manim/README.md).
 
 ## Cross-library benchmark

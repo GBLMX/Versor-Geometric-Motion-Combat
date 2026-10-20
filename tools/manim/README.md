@@ -157,7 +157,8 @@ uv run --frozen --no-config manimgl ga_demo.py VersorGADemo -l -w --video_dir vi
 ```
 
 `tests/` covers basis products, E3/PGA/CGA round trips, Manim mobject creation,
-and the rotor/motor animations. `ga_demo.py` renders `videos/VersorGADemo.mp4`.
+the rotor/motor animations, and the flat JSON bridge. `ga_demo.py` renders
+`videos/VersorGADemo.mp4`; `bridge_scene.py` renders the checked-in flat data.
 
 ## Integration test
 
