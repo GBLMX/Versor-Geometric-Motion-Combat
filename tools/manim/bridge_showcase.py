@@ -75,7 +75,6 @@ class Bridge3DScene(ThreeDScene):
             color=KDE.comment,
         ).fix_in_frame().next_to(title, DOWN, buff=0.06)
 
-        self.add(axes, title, subtitle)
         self.play(FadeIn(axes), FadeIn(title), FadeIn(subtitle), run_time=0.8)
 
         surface = build_mobject(BY_ID["surface"], axes)
