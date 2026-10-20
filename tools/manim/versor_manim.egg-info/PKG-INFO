@@ -1,7 +1,0 @@
-Metadata-Version: 2.4
-Name: versor-manim
-Version: 0.1.0
-Summary: ManimGL scenes driven by versor-java data
-Requires-Python: <3.15,>=3.14
-Requires-Dist: manimgl
-Requires-Dist: av
