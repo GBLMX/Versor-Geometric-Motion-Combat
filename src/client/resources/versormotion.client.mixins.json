@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"package": "com.gblmx.versormotion.mixin.client",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"GameRendererMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

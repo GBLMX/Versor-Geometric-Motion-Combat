@@ -2,3 +2,10 @@ out/
 out-test/
 out-blaze3d/
 *.class
+
+# Gradle / Fabric
+.gradle/
+build/
+run/
+*.log
+.idea/

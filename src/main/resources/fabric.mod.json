@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"id": "versormotion",
+	"version": "${version}",
+	"name": "Versor Geometric Motion Combat",
+	"description": "PGA/CGA-driven kinematics, rigid-body motion and combat geometry for Minecraft.",
+	"authors": [
+		"GBLMX"
+	],
+	"contact": {
+		"sources": "https://github.com/GBLMX/Versor-Geometric-Motion-Combat"
+	},
+	"license": "All-Rights-Reserved",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.gblmx.versormotion.VersorMotion"
+		],
+		"client": [
+			"com.gblmx.versormotion.client.VersorMotionClient"
+		]
+	},
+	"mixins": [
+		{
+			"config": "versormotion.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

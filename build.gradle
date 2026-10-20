@@ -1,0 +1,70 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+	id 'maven-publish'
+}
+
+version = project.version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"versormotion" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}
+
+// The pure-math core lives in the versor-java submodule.
+sourceSets {
+	main {
+		java.srcDir 'lib/versor-java/src/main/java'
+		java.srcDir 'lib/versor-java/src/blaze3d/java'
+	}
+	test {
+		java.srcDir 'lib/versor-java/src/test/java'
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+tasks.named('test') {
+	failOnNoDiscoveredTests = false
+}
+
+tasks.register('gaTest', JavaExec) {
+	group = 'verification'
+	description = 'Runs the standalone geometric algebra checks (vsr.GaTest).'
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'vsr.GaTest'
+}
