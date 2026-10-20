@@ -172,9 +172,10 @@ The script:
 1. runs `lib/versor-java/build.sh` (454 algebra checks);
 2. compiles `bridge/VersorManimDump.java` against `lib/versor-java/out`;
 3. writes `data/versor-rotor.json` (61 E3 rotor samples);
-4. runs the `versor_ga` and bridge unit tests;
-5. renders `VersorRotor` at low quality into `videos/`;
-6. renders `JsonBridgeScene` from the checked-in flat data.
+4. runs `bridge_data/generate_data.wls` when `wolframscript` is available and
+   asserts the flat records (otherwise uses the checked-in JSON);
+5. runs the `versor_ga` and bridge unit tests;
+6. renders `VersorRotor` and `JsonBridgeScene` at low quality into `videos/`.
 
 Expected outputs: `videos/VersorRotor.mp4` and `videos/JsonBridgeScene.mp4`.
 

@@ -18,6 +18,25 @@ java -cp "$VERSOR/out:$HERE/bridge/out" vsr.bridge.VersorManimDump \
 echo "== manim render =="
 cd "$HERE"
 uv sync --frozen --no-config
+
+if command -v wolframscript >/dev/null 2>&1; then
+  echo "== Wolfram -> flat JSON =="
+  wolframscript -file bridge_data/generate_data.wls
+  uv run --frozen --no-config python - <<'PY'
+from versor_ga.bridge import load_records, record_series
+
+records = load_records("bridge_data/data/demo.json")
+ids = [record["id"] for record in records]
+assert ids == ["sin_curve", "phase_shifted", "slope"], ids
+assert len(records[0]["points"]) == 501
+assert len(records[1]["points"]) == 501
+assert len(record_series(records[2])) == 501
+print("wolfram bridge: 3 records, 501 samples each")
+PY
+else
+  echo "wolframscript not found; using checked-in bridge data"
+fi
+
 uv run --frozen --no-config python -m unittest discover -s tests -v
 uv run --frozen --no-config manimgl "$HERE/versor_scene.py" VersorRotor \
   -l -w --video_dir "$HERE/videos"
