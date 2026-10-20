@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.gblmx.versormotion.field.FieldBurst;
+import com.gblmx.versormotion.net.Payloads;
 import com.gblmx.versormotion.net.RollPayload;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 
@@ -53,13 +53,8 @@ public final class RollManager {
 		player.syncVelocity = true;
 		player.setInvulnerableTime(DURATION_TICKS);
 
-		RollPayload payload = new RollPayload(player.getId(), DURATION_TICKS);
-		ServerPlayNetworking.send(player, payload);
-		for (ServerPlayer tracker : PlayerLookup.tracking(player)) {
-			if (tracker != player) {
-				ServerPlayNetworking.send(tracker, payload);
-			}
-		}
+		Payloads.broadcast(player, new RollPayload(player.getId(), DURATION_TICKS));
+		FieldBurst.burst(player.level(), player.position());
 		return true;
 	}
 }

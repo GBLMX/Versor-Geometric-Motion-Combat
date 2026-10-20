@@ -89,3 +89,10 @@ tasks.register('gaTest', JavaExec) {
 	classpath = sourceSets.test.runtimeClasspath
 	mainClass = 'vsr.GaTest'
 }
+
+tasks.register('combatTest', JavaExec) {
+	group = 'verification'
+	description = 'Runs the swing, guard-plane and field-bake checks (CombatChecks).'
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.gblmx.versormotion.combat.CombatChecks'
+}

@@ -56,6 +56,12 @@ public final class RollAnimations {
 		return t < 0f ? 0f : (float) Math.sin(Math.PI * t);
 	}
 
+	/** Camera bank during a roll, zero when inactive. */
+	public static float cameraRoll(int entityId) {
+		float t = progress(entityId);
+		return t < 0f ? 0f : (float) Math.sin(Math.PI * t) * 0.21f;
+	}
+
 	public static void clear() {
 		ACTIVE.clear();
 	}

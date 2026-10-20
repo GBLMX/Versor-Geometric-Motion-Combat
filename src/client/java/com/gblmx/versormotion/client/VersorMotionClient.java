@@ -4,7 +4,13 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 import com.gblmx.versormotion.VersorMotion;
+import com.gblmx.versormotion.VersorParticles;
+import com.gblmx.versormotion.net.CameraShakePayload;
+import com.gblmx.versormotion.net.FieldBurstPayload;
 import com.gblmx.versormotion.net.RollPayload;
+import com.gblmx.versormotion.net.SwingPayload;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
@@ -65,9 +71,25 @@ public final class VersorMotionClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		LevelExtractionEvents.END_EXTRACTION.register(this::extract);
 		LevelRenderEvents.END_MAIN.register(this::render);
+		ParticleProviderRegistry.getInstance().register(VersorParticles.SWING_SPARK,
+				SwingSparkParticle::provider);
 		ClientPlayNetworking.registerGlobalReceiver(RollPayload.TYPE, (payload, context) ->
 				context.client().execute(() -> RollAnimations.start(payload.entityId(), payload.duration())));
-		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> RollAnimations.clear());
+		ClientPlayNetworking.registerGlobalReceiver(SwingPayload.TYPE, (payload, context) ->
+				context.client().execute(() -> TrailAnimations.startArc(
+						payload.entityId(), payload.duration(), payload.points())));
+		ClientPlayNetworking.registerGlobalReceiver(FieldBurstPayload.TYPE, (payload, context) ->
+				context.client().execute(() -> TrailAnimations.startBurst(
+						payload.duration(), payload.points())));
+		ClientPlayNetworking.registerGlobalReceiver(CameraShakePayload.TYPE, (payload, context) ->
+				context.client().execute(() -> CameraShake.start(
+						payload.amplitude(), payload.duration())));
+		ClientTickEvents.END_CLIENT_TICK.register(TrailAnimations::tick);
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			RollAnimations.clear();
+			TrailAnimations.clear();
+			CameraShake.clear();
+		});
 	}
 
 	private void extract(LevelExtractionContext context) {
@@ -134,6 +156,23 @@ public final class VersorMotionClient implements ClientModInitializer {
 			dot.translate(dots[i], dots[i + 1], dots[i + 2]);
 			renderBox(dot, builder, -0.02f, -0.02f, -0.02f, 0.02f, 0.02f, 0.02f,
 					1.0f, 0.55f, 0.2f, 0.85f);
+		}
+
+		// Server-baked swing arcs: the client only replays the volume the server
+		// adjudicated, fading out as the swing completes.
+		for (int id : TrailAnimations.arcIds()) {
+			float[] arc = TrailAnimations.points(id);
+			float t = TrailAnimations.progress(id);
+			if (arc == null || t < 0f) {
+				continue;
+			}
+			float alpha = 0.9f * (1f - t);
+			for (int i = 0; i + 2 < arc.length; i += 3) {
+				Matrix4f blade = new Matrix4f(pose.last().pose());
+				blade.translate(arc[i], arc[i + 1], arc[i + 2]);
+				renderBox(blade, builder, -0.035f, -0.035f, -0.035f, 0.035f, 0.035f, 0.035f,
+						0.45f, 0.85f, 1.0f, alpha);
+			}
 		}
 
 		pose.popPose();

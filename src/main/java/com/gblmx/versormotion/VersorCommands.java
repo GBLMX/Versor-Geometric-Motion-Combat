@@ -8,11 +8,14 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.gblmx.versormotion.field.FieldBurst;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.phys.Vec3;
 import vsr.Calculus;
 import vsr.E3;
@@ -34,12 +37,17 @@ public final class VersorCommands {
 		LiteralCommandNode<CommandSourceStack> root = dispatcher.register(
 				Commands.literal("versor")
 						.executes(ctx -> usage(ctx.getSource()))
+						.then(Commands.literal("attack")
+								.executes(VersorCommands::attack))
 						.then(Commands.literal("roll")
 								.executes(VersorCommands::roll))
 						.then(Commands.literal("field")
 								.then(Commands.literal("at")
 										.then(Commands.argument("pos", Vec3Argument.vec3(false))
-												.executes(VersorCommands::fieldAt))))
+												.executes(VersorCommands::fieldAt)))
+								.then(Commands.literal("burst")
+										.then(Commands.argument("pos", Vec3Argument.vec3(false))
+												.executes(VersorCommands::fieldBurst))))
 						.then(Commands.literal("motion")
 								.then(Commands.literal("rotation")
 										.then(Commands.argument("axis", Vec3Argument.vec3(false))
@@ -64,9 +72,26 @@ public final class VersorCommands {
 
 	private static int usage(CommandSourceStack source) {
 		source.sendSuccess(() -> Component.literal(
-				"versor: field at <pos> | motion rotation <axis> <omega> <time> <point>"
-						+ " | sweep rotation <axis> <omega> <t0> <t1> <samples> <point> | roll"), false);
+				"versor: field at <pos> | field burst <pos> | motion rotation <axis> <omega> <time> <point>"
+						+ " | sweep rotation <axis> <omega> <t0> <t1> <samples> <point> | attack | roll"), false);
 		return 1;
+	}
+
+	private static int fieldBurst(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		Vec3 p = Vec3Argument.getVec3(ctx, "pos");
+		int samples = FieldBurst.burst(ctx.getSource().getLevel(), p);
+		ctx.getSource().sendSuccess(() -> Component.literal(
+				"field burst: " + samples + " particles"), false);
+		return samples;
+	}
+
+	private static int attack(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer player = ctx.getSource().getPlayerOrException();
+		player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
+		int hits = CombatManager.swing(player, null);
+		ctx.getSource().sendSuccess(() -> Component.literal(
+				"swing: " + hits + " target(s) in arc"), false);
+		return hits;
 	}
 
 	private static int roll(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
