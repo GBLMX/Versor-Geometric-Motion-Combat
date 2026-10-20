@@ -198,6 +198,20 @@ cd tools/manim
 It runs the 454 algebra checks, exports 61 samples from `vsr.E3`, and renders
 `videos/VersorRotor.mp4`.
 
+## Benchmarks
+
+[`tools/bench-ga/`](tools/bench-ga/README.md) compares `versor-java` with
+`clifford` and `kingdon` on identical Cl(3,0) and Cl(4,1) workloads:
+
+```bash
+cd tools/bench-ga
+./run.sh
+```
+
+It reports dense geometric product, rotor sandwich, and 1000-element batch
+sandwich in ns per element. The harness pins Python 3.13 and writes
+`results.csv`; generated results are not committed.
+
 ## Project layout
 
 ```text
@@ -214,6 +228,7 @@ src/main/resources/        mod metadata, mixins, datapack defaults
 src/test/java/...          standalone combat/we checks
 lib/versor-java/           pure-Java geometric algebra core (submodule)
 tools/manim/               fixed uv/ManimGL scenes and versor-java bridge
+tools/bench-ga/            cross-library GA benchmark
 docs/                      architecture, commands, math, development
 ```
 

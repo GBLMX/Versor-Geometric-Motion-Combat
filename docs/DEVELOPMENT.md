@@ -105,6 +105,19 @@ uv sync --frozen --no-config
 `tools/manim/sta/` and requires Wolfram Engine 15.0. See
 [`tools/manim/README.md`](../tools/manim/README.md).
 
+## Cross-library benchmark
+
+```bash
+cd tools/bench-ga
+./run.sh
+```
+
+The harness compares `versor-java` with `clifford` and `kingdon` on Cl(3,0) and
+Cl(4,1) geometric products, rotor sandwiches, and a 1000-element batch. It
+reports ns per element into `results.csv`. See
+[`tools/bench-ga/README.md`](../tools/bench-ga/README.md) for methodology and
+caveats.
+
 ## Code map
 
 | Path | Responsibility |

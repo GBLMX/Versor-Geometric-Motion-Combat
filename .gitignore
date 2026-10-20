@@ -17,3 +17,5 @@ __pycache__/
 tools/manim/videos/
 tools/manim/bridge/out/
 tools/manim/data/versor-rotor.json
+tools/bench-ga/java-out/
+tools/bench-ga/*.csv

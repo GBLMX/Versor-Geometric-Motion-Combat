@@ -190,6 +190,19 @@ cd tools/manim
 脚本会跑 454 项代数检查、用 `vsr.E3` 导出 61 个采样点，并渲染
 `videos/VersorRotor.mp4`。
 
+## 基准测试
+
+[`tools/bench-ga/`](tools/bench-ga/README.md) 在相同的 Cl(3,0) 与 Cl(4,1)
+负载上对比 `versor-java`、`clifford`、`kingdon`：
+
+```bash
+cd tools/bench-ga
+./run.sh
+```
+
+测试稠密几何积、转子夹心、1000 元素批量夹心，单位为每元素纳秒。环境固定为
+Python 3.13，结果写入 `results.csv`；生成结果不入库。
+
 ## 项目结构
 
 ```text
@@ -206,6 +219,7 @@ src/main/resources/        模组元数据、mixin、数据包默认值
 src/test/java/...          独立 combat/we 检查
 lib/versor-java/           纯 Java 几何代数核心（子模块）
 tools/manim/               固定 uv/ManimGL 场景与 versor-java 桥
+tools/bench-ga/            跨库几何代数基准
 docs/                      架构、命令、数学、开发文档
 ```
 

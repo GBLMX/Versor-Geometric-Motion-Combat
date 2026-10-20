@@ -22,6 +22,7 @@ Combat. The top-level [README](../README.md) is the project landing page.
 | [Kernel scheduling](../lib/versor-java/docs/KERNEL_SCHEDULING.md) | Dense/sparse/batch/matrix kernels, dispatch thresholds, measured optimizations. |
 | [Performance report](../lib/versor-java/PERFORMANCE.md) | Benchmark methodology and results for the math core. |
 | [Manim environment](../tools/manim/README.md) | Fixed uv/ManimGL setup, versor-java rotor scene, migrated STA scene. |
+| [GA benchmark](../tools/bench-ga/README.md) | `versor-java` vs `clifford`/`kingdon` methodology and caveats. |
 
 ## Project policy
 

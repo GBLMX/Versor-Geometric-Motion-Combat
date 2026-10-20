@@ -1,0 +1,13 @@
+[project]
+name = "versor-ga-bench"
+version = "0.1.0"
+description = "Benchmark versor-java against PyPI geometric algebra libraries"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "numpy",
+    "clifford==1.5.1",
+    "kingdon==3.0.0",
+]
+
+[tool.uv]
+package = false

@@ -24,6 +24,8 @@ of Keep a Changelog; versions use `MAJOR.MINOR.PATCH`.
   development documentation.
 - Fixed uv/ManimGL environment under `tools/manim/` with a versor-java-driven
   rotor scene and the migrated STA/Cl(1,3) scene.
+- Cross-library GA benchmark under `tools/bench-ga/` for `versor-java`,
+  `clifford`, and `kingdon`.
 - GitHub build workflow and issue/PR templates.
 
 ### Compatibility
