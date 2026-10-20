@@ -1,7 +1,9 @@
 package com.gblmx.versormotion;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -40,6 +42,11 @@ public final class FluidDrag {
 	}
 
 	public static Vec3 applyWater(LivingEntity entity, Vec3 velocity, Vec3 vanilla) {
+		// Bubble columns are a scripted lift, not free-stream drag; keep their
+		// vanilla damping so soul-sand elevators and magma sinks behave as designed.
+		if (inBubbleColumn(entity)) {
+			return vanilla;
+		}
 		double height = entity.getBbHeight();
 		if (height <= 1e-9) {
 			return vanilla;
@@ -47,5 +54,13 @@ public final class FluidDrag {
 		double fluidHeight = entity.getFluidHeight(FluidTags.WATER);
 		double submerged = Math.min(1.0, Math.max(0.0, fluidHeight / height));
 		return apply(velocity, vanilla, WATER_DENSITY, entity.getBbWidth(), height, submerged);
+	}
+
+	private static boolean inBubbleColumn(LivingEntity entity) {
+		if (entity.level().getBlockState(entity.blockPosition()).is(Blocks.BUBBLE_COLUMN)) {
+			return true;
+		}
+		BlockPos eye = BlockPos.containing(entity.getX(), entity.getEyeY(), entity.getZ());
+		return entity.level().getBlockState(eye).is(Blocks.BUBBLE_COLUMN);
 	}
 }
