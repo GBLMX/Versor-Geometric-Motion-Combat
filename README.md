@@ -5,7 +5,7 @@ multivector fields from the [versor-java](https://github.com/GBLMX/versor-java) 
 
 ## 当前状态
 
-- 数学核心以 git submodule 引入（`lib/versor-java`），453 项断言通过。
+- 数学核心以 git submodule 引入（`lib/versor-java`），454 项断言通过。
 - 客户端渲染 spike：
   - `Motion.rotation` 驱动的 PGA motor 立方体（玩家前方 3 格）；
   - 由多重向量场 `F(x) = (-y, x, 0)` 积分出的场流线；
@@ -66,7 +66,7 @@ JAVA_HOME=~/.jdks/jbrsdk-25.0.3 ./gradlew runClient
 数学检查：
 
 ```bash
-./gradlew gaTest        # 453 checks
+./gradlew gaTest        # 454 checks
 ./gradlew combatTest    # 245 checks（115 刀弧 + 9 盾面 + 79 场烘焙 + 16 龙卷风 + 26 规则）
 ./gradlew weTest        # 38 checks（选区 / 形体 / 剪贴板 / undo）
 ```
@@ -78,6 +78,7 @@ JAVA_HOME=~/.jdks/jbrsdk-25.0.3 ./gradlew runClient
 ```
 lib/versor-java/            纯数学核心 + JOML 适配（git submodule）
 docs/MATH_PHYSICS.md        几何代数、PGA/CGA、运动学、场论与战斗/流体推导
+lib/versor-java/docs/KERNEL_SCHEDULING.md  内核分派、统一与调度分析
 src/main/java/com/...       公共入口、combat 判定、field 烘焙、wedit 编辑核心、Display 变换、网络包
 src/client/java/com/...     客户端渲染、动画、镜头、自定义粒子与 mixin
 src/main/resources/         fabric.mod.json、mixin 配置
