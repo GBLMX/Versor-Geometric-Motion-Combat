@@ -3,14 +3,16 @@
 	"id": "versormotion",
 	"version": "${version}",
 	"name": "Versor Geometric Motion Combat",
-	"description": "PGA/CGA-driven kinematics, rigid-body motion and combat geometry for Minecraft.",
+	"description": "Geometric algebra combat, rigid-body motion, physical fields, and world editing for Minecraft.",
 	"authors": [
 		"GBLMX"
 	],
 	"contact": {
-		"sources": "https://github.com/GBLMX/Versor-Geometric-Motion-Combat"
+		"homepage": "https://github.com/GBLMX/Versor-Geometric-Motion-Combat",
+		"sources": "https://github.com/GBLMX/Versor-Geometric-Motion-Combat",
+		"issues": "https://github.com/GBLMX/Versor-Geometric-Motion-Combat/issues"
 	},
-	"license": "All-Rights-Reserved",
+	"license": "Apache-2.0",
 	"environment": "*",
 	"entrypoints": {
 		"main": [

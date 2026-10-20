@@ -1,178 +1,257 @@
 # Versor Geometric Motion Combat
 
-Fabric mod for Minecraft **26.3** built on geometric algebra: rigid-body motion and
-multivector fields from the [versor-java](https://github.com/GBLMX/versor-java) core.
+**Geometric algebra, made playable.**
 
-## 当前状态
+A Fabric mod for **Minecraft 26.3** that uses projective and conformal geometric
+algebra for server-authoritative combat, rigid-body motion, physical fields, and
+in-game world editing.
 
-- 数学核心以 git submodule 引入（`lib/versor-java`），454 项断言通过。
-- 客户端渲染 spike：
-  - `Motion.rotation` 驱动的 PGA motor 立方体（玩家前方 3 格）；
-  - 由多重向量场 `F(x) = (-y, x, 0)` 积分出的场流线；
-  - 走 26.x 的 extraction / drawing 两阶段，经 `StagedVertexBuffer` 提交；
-  - 绘制注册在 `LevelRenderEvents.END_MAIN`：`AFTER_TRANSLUCENT_TERRAIN` 位于主
-    render pass 内部，`StagedVertexBuffer.upload()` 会在那里抛
-    “Close the existing render pass before performing additional commands”。
-- 服务端权威翻滚：`/versor roll` 触发 0.6 b/t 冲量、10 tick 无敌、20 tick 冷却；
-  状态经 S2C 同步，客户端用 `AvatarRenderer.setupRotations` 与 `PlayerModel.setupAnim`
-  叠加转子翻转与四肢收拢。
-- 服务端权威挥砍判定：`AttackEntityCallback` 在 `Player.attack` 入口读取服务端的
-  眼位/朝向，用 PGA 烘焙 48 点刀弧，段-AABB 距离用三分搜索（不会在采样点之间
-  穿透）；直击目标由原版处理，弧内其余目标受伤并被击退。弧在 tick 末尾统一结算，
-  并排除本 tick 所有直击目标，因此 Better Combat 这类一次挥击多次调用
-  `Player.attack` 的多目标处理不会让同一目标吃到“直击 + 弧线”两份伤害。
-- 攻击动作与粒子：`SwingPayload` 把烘焙弧点一次性发给追踪者，客户端回放
-  `versormotion:swing_spark` 自定义粒子并叠加 rotor 身体扭转；命中点由服务端
-  `sendParticles(SWEEP_ATTACK)` 补火花。
-- 盾反：防御者格挡且面向攻击者时，刀弧与盾面（`P3` 平面）求交；命中则取消
-  整次攻击、播放 `SHIELD_BLOCK` 与火花，并把攻击者击退。判定读取
-  `blocks_attacks` 组件而非盾牌物品（并遵守组件的 `bypassed_by` 规则），因此
-  Sword Blocking Mechanics 之类给剑加上格挡组件的模组也能触发盾反。
-- 场驱动粒子：`StreamBake` 用 `∇×A` 构造无散度涡旋，翻滚与
-  `/versor field burst <pos>` 触发；客户端按烘焙点回放。
-- 龙卷风：`TornadoBake` 用 Rankine 旋涡（内核刚体旋转、外侧 `1/r`）、径向入流
-  和轴心上升气流积分出漏斗流线；`/versor field tornado <pos>` 一次广播
-  `TornadoPayload`（352 点 / 200 tick），客户端绕轴旋转、淡入淡出，并从同一
-  点云每 tick 发射 `CLOUD` 雾气与 `ASH` 地面碎屑。
-- 镜头：翻滚时相机侧倾，受伤时按伤害量衰减抖动（`Camera.extractRenderState` 注入）。
-- CGA：`vsr.Conformal` 提供共形点/球/平面/圆（Cl(4,1)），含点-球、点-圆关联检查，
-  以及点到球面/平面的距离与最近点。
-- 创世神式编辑：`/we` 命令树 + `//` 拦截，提供选区、set/replace、球/圆柱、copy/cut/paste、
-  undo/redo；单次编辑上限 32768 方块，详见下文。
-- Display Entity 兼容：`DisplayTransforms` 读取/写回完整 `transformation`，
-  `left_rotation`、`right_rotation`、`translation`、`scale` 互不覆盖；
-  `/versor display rotate` 用 E3 转子修改任一侧。
+[![Build](https://github.com/GBLMX/Versor-Geometric-Motion-Combat/actions/workflows/build.yml/badge.svg)](https://github.com/GBLMX/Versor-Geometric-Motion-Combat/actions/workflows/build.yml)
+![Minecraft](https://img.shields.io/badge/Minecraft-26.3-62b47a)
+![Java](https://img.shields.io/badge/Java-25-orange)
+![Fabric](https://img.shields.io/badge/Fabric-0.19.5-blue)
+![License](https://img.shields.io/badge/license-Apache--2.0-blue)
+![Status](https://img.shields.io/badge/status-experimental-e6a23c)
 
-## 环境
+[中文说明](README.zh-CN.md) · [Documentation](docs/README.md) · [Commands](docs/COMMANDS.md) · [Architecture](docs/ARCHITECTURE.md) · [Math](docs/MATH_PHYSICS.md)
 
-| 项 | 版本 |
+---
+
+## Why this project
+
+Most combat mods author hitboxes, knockback, and animation as separate systems.
+This project instead derives them from a shared geometric model:
+
+- **PGA3** represents points, planes, lines, and rigid motions as algebra
+  elements. A sword arc, a shield plane, and a dodge rotor use the same
+  primitives.
+- **Server authority** decides hits, parries, rolls, and edits; clients only
+  replay the baked geometry. A hacked client cannot widen its arc.
+- **The math core is reusable.** [`versor-java`](https://github.com/GBLMX/versor-java)
+  is a pure-Java geometric algebra library with dense, sparse, batch, and
+  matrix paths and its own test/benchmark suite.
+
+The result is a combat system whose visuals, collision checks, and network
+payloads all come from the same baked arc.
+
+## Features
+
+| Area | What it does |
+|---|---|
+| **Sweeping attacks** | A 48-point PGA blade arc is baked from the server's eye position and yaw. Segment–AABB distance uses ternary search, so targets cannot tunnel between samples. |
+| **Parry** | The attacker's baked arc is intersected with the defender's **guard plane** in PGA. A successful parry cancels the whole attack and pushes the attacker back. |
+| **Dodge roll** | Server-side impulse, invulnerability window, cooldown, and a synced rotor animation. |
+| **Field effects** | Divergence-free vortex particles and an analytic Rankine-vortex tornado, baked once and replayed by clients. |
+| **Geometric editing** | A bounded WorldEdit-style core: selection, set/replace, spheres, cylinders, copy/cut/paste, undo/redo. |
+| **Display entities** | Full `transformation` read/write, including independent left/right rotations, translation, and scale. |
+| **Camera feedback** | Roll tilt and damage-scaled shake, injected through client render state. |
+| **Math library** | E3 rotors, PGA3 motors, CGA3 spheres/planes/circles, twist kinematics, vector calculus, and kernel scheduling. |
+
+## Architecture
+
+```mermaid
+flowchart LR
+    MC[Minecraft 26.3 / Fabric] --> C[CombatManager]
+    MC --> F[FieldBake / Tornado]
+    MC --> W[WeCommands / Selection]
+    MC --> D[DisplayTransforms]
+    C --> GA[versor-java]
+    F --> GA
+    W --> GA
+    D --> GA
+    GA --> E3[E3 rotors]
+    GA --> PGA[PGA3 motors / lines / planes]
+    GA --> CGA[CGA3 spheres / planes / circles]
+    C --> NET[SwingPayload / RollPayload]
+    NET --> CLIENT[Client replay: particles, animation, camera]
+```
+
+Read [Architecture](docs/ARCHITECTURE.md) for module boundaries, authority flow,
+networking, and the 26.3 render-pipeline notes.
+
+## Quick start
+
+### Requirements
+
+| Component | Version |
 |---|---|
 | Minecraft | 26.3 |
 | Java | 25 |
 | Fabric Loader | 0.19.5 |
 | Fabric API | 0.163.0+26.3 |
-| Loom | 1.18-SNAPSHOT |
+| Cloth Config | 26.3.159 |
+| Mod Menu | 21.0.0 (optional) |
 
-## 构建与运行
+### Build from source
 
 ```bash
-git clone --recursive git@github.com:GBLMX/Versor-Geometric-Motion-Combat.git
+git clone --recursive https://github.com/GBLMX/Versor-Geometric-Motion-Combat.git
 cd Versor-Geometric-Motion-Combat
 
-JAVA_HOME=~/.jdks/jbrsdk-25.0.3 ./gradlew build
-JAVA_HOME=~/.jdks/jbrsdk-25.0.3 ./gradlew runClient
+# JDK 25 must be on JAVA_HOME
+./gradlew build
 ```
 
-数学检查：
+The mod jar is written to:
+
+```text
+build/libs/versor-geometric-motion-combat-0.1.0.jar
+```
+
+If the repository was cloned without submodules:
 
 ```bash
-./gradlew gaTest        # 454 checks
-./gradlew combatTest    # 245 checks（115 刀弧 + 9 盾面 + 79 场烘焙 + 16 龙卷风 + 26 规则）
-./gradlew weTest        # 38 checks（选区 / 形体 / 剪贴板 / undo）
+git submodule update --init --recursive
 ```
 
-产物：`build/libs/versor-geometric-motion-combat-0.1.0.jar`。
+### Run a development client/server
 
-## 结构
-
-```
-lib/versor-java/            纯数学核心 + JOML 适配（git submodule）
-docs/MATH_PHYSICS.md        几何代数、PGA/CGA、运动学、场论与战斗/流体推导
-lib/versor-java/docs/KERNEL_SCHEDULING.md  内核分派、统一与调度分析
-src/main/java/com/...       公共入口、combat 判定、field 烘焙、wedit 编辑核心、Display 变换、网络包
-src/client/java/com/...     客户端渲染、动画、镜头、自定义粒子与 mixin
-src/main/resources/         fabric.mod.json、mixin 配置
-src/client/resources/       assets（swing_spark 粒子定义与贴图）
+```bash
+./gradlew runClient
+./gradlew runServer
 ```
 
-## 游戏内命令
+The dev client disables `xvfb` for local visual testing. CI uses headless build
+and test tasks only.
 
-WorldEdit 风格子命令。查询类命令（`field` / `motion` / `sweep`）不需要玩家实体，
-可直接放进命令方块 / 数据包函数 / 服务器控制台；动作类（`attack` / `roll`）需要
-玩家执行者。坐标支持 `~`。
+## Installation
 
-```text
-/versor field at <pos>
-/versor field burst <pos>
-/versor field tornado <pos>
-/versor motion rotation <axis> <omega> <time> <point>
-/versor sweep rotation <axis> <omega> <t0> <t1> <samples> <point>
-/versor display rotate <targets> <axis> <angle> [local]
-/versor attack                         # 挥砍：服务端判定并广播烘焙弧（需玩家执行者）
-/versor roll                           # 翻滚（需玩家执行者）
-/vm ...                                # 别名
-```
+1. Install Fabric Loader for Minecraft 26.3.
+2. Put **Fabric API**, **Cloth Config**, and this mod jar in `mods/`.
+3. Optionally add **Mod Menu** for the in-game configuration screen.
+4. Start the game. The mod is server-authoritative; on a dedicated server the
+   jar must be installed on the server, and clients need it for visuals.
 
-- `field at`：输出 `F`、散度、旋度；
-- `field burst`：在坐标处烘焙一次无散度涡旋粒子，返回粒子采样数；
-- `field tornado`：在坐标处生成龙卷风（352 点漏斗、200 tick、客户端粒子），返回采样数；
-- `motion`：输出位置、速度、加速度；
-- `sweep`：输出扫掠 AABB 与路径长度，并返回采样数，可配合
-  `execute store result ... run versor sweep ...` 使用；
-- `display rotate`：对目标 Display 实体叠加 E3 转子。默认写入
-  `left_rotation`（实体原点处的世界旋转）；末尾加 `local` 写入
-  `right_rotation`（局部旋转）；角度单位为度。`translation`、`scale` 与另一侧旋转保持不变；
-- `attack`：按服务端眼位/朝向判定，返回本次弧线额外命中的目标数；
-- `roll`：0.6 b/t 冲量 + 10 tick 无敌，20 tick 冷却。
+## Commands
 
-### 创世神式编辑
+All commands are available as `/versor ...` and `/vm ...`.
 
-`wedit` 包提供一套最小编辑核心，命令挂在 `/we` 下；同时 mixin 拦截
-`Commands.performCommand`，把玩家输入的 `//command` 翻译成 `we command`
-（原版会先剥掉一个 `/`，所以服务端看到的是 `/set`）。命令方块与控制台同样可用。
-
-```text
-//wand | //pos1 | //pos2            # 木斧左键 pos1、右键 pos2；无需选区即可 //pos1
-//size                              # 选区尺寸与体积（超限也会照常报告）
-//count <filter>                    # 统计匹配方块，如 //count #minecraft:logs
-//set <block>                       # 填充，如 //set minecraft:stone
-//replace <to>                      # 把非空气替换为 <to>
-//replace <from> <to>               # 过滤替换，<from> 支持方块谓词/标签
-//sphere <block> <r> | //hsphere ... # 实心 / 空心球（球心取选区中心）
-//cyl <block> <r> [height] | //hcyl ... # 实心 / 空心圆柱（高度居中）
-//copy | //cut | //paste            # 相对玩家位置粘贴
-//undo | //redo                     # 每名玩家 5 步历史
-```
-
-限制与差异：
-
-- 单次编辑最多 **32768** 方块，半径 ≤ 32，圆柱高 ≤ 64；超限直接报错，不会部分执行。
-- `//pos1` / `//pos2` 取玩家脚下方块，不做视线目标选择（木斧才是选点方式）。
-- 不支持 NBT/容器内容、schematic、区域文件、多选点、mask 组合与超限绕过。
-- 方块状态参数支持 `oak_stairs[facing=north,half=top]` 这类写法（按括号深度切分参数）。
-- `//` 前缀会拦截所有以 `/` 开头的命令字符串；若同时安装 WorldEdit 等同样占用
-  `//` 的模组，二者会冲突，二选一。
-
-示例（服务器控制台实测）：
-
-```text
-F(1.000, 2.000, 3.000) = (-2.000, 1.000, 0.000); div = 0.000; curl = (-0.000, -0.000, 2.000)
-motion t=0.500: pos = (0.878, 0.479, 0.000); vel = (-0.479, 0.878, 0.000); acc = (-0.878, -0.479, 0.000)
-sweep 4 samples: aabb = [(0.540, 0.000, 0.000), (1.000, 0.841, 0.000)]; length = 0.995
-```
-
-## 26.3 渲染 API 注意
-
-26.3 把渲染栈从 `com.mojang.blaze3d.*` 迁到了 `com.mojang.renderpearl.*`：
-
-```java
-import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
-import com.mojang.renderpearl.api.commands.RenderPass;
-import com.mojang.renderpearl.api.textures.GpuTextureView;
-import com.mojang.renderpearl.api.vertex.VertexFormat;
-import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
-```
-
-`RenderPass.setPipeline` 接收 `CompiledRenderPipeline`，需经
-`RenderSystem.getCompiledPipeline(pipeline)` 取得。26.2 的文档仍用旧包名。
-
-## 参考资料
-
-| 来源 | 用途 |
+| Command | Purpose |
 |---|---|
-| [versor-java](https://github.com/GBLMX/versor-java) | 核心库 |
-| Macdonald, *Linear and Geometric Algebra* | 转子约定与插值 |
-| Macdonald, *Vector and Geometric Calculus* | ∇F、通量积分 |
-| [Klein](https://github.com/jeremyong/klein) | PGA 标量参考、符号表思路 |
-| [Aerodynamics4MC-Core](https://github.com/MozillaFiredoge/Aerodynamics4MC-Core) | 薄入口、服务端权威、量化同步 |
+| `/versor attack` | Swing once; server adjudicates the arc and broadcasts it. |
+| `/versor roll` | Dodge roll with impulse, invulnerability, and cooldown. |
+| `/versor field at <pos>` | Print swirl field, divergence, and curl at a position. |
+| `/versor field burst <pos>` | Bake and play a divergence-free vortex burst. |
+| `/versor field tornado <pos>` | Spawn a Rankine-vortex tornado. |
+| `/versor motion rotation <axis> <omega> <time> <point>` | Print position, velocity, and acceleration. |
+| `/versor sweep rotation <axis> <omega> <t0> <t1> <samples> <point>` | Print swept AABB and path length. |
+| `/versor display rotate <targets> <axis> <angle> [local]` | Apply an E3 rotor to Display entities. |
+| `/versor rules` | Print the active combat tuning. |
+| `/we ...` / `//...` | WorldEdit-style editing commands. |
+
+Full syntax, permissions, and examples: [Commands](docs/COMMANDS.md).
+
+## Configuration
+
+Combat tuning is a datapack file:
+
+```text
+data/versormotion/combat.json
+```
+
+It is reloaded with `/reload`. Missing or malformed values fall back to defaults;
+all numbers are clamped.
+
+| Key | Default | Range | Meaning |
+|---|---:|---:|---|
+| `arc_damage` | 2.0 | 0–100 | Base damage for a swept hit. |
+| `knockback` | 0.3 | 0–5 | Horizontal knockback strength. |
+| `swing_cooldown_ticks` | 4 | 0–200 | Minimum ticks between adjudicated swings. |
+| `swing_ticks` | 6 | 1–40 | Client trail lifetime. |
+| `min_reach` | 2.0 | 1.0–6.0 | Lower bound for entity interaction range. |
+| `max_reach` | 6.0 | 2.0–8.0 | Upper bound for entity interaction range. |
+| `parry` | true | bool | Enable guard-plane parries. |
+| `parry_reach` | 1.15 | 0.5–4.0 | Shield coverage radius. |
+| `field_seeds` | 10 | 1–64 | Vortex seed count. |
+| `field_steps` | 6 | 1–32 | Vortex integration steps per seed. |
+| `field_ticks` | 10 | 1–60 | Particle effect lifetime. |
+
+See [Configuration](docs/CONFIGURATION.md) for reload behavior and datapack
+placement.
+
+## Testing
+
+The repository has three standalone test suites in addition to the Gradle build:
+
+```bash
+./gradlew gaTest        # 454 geometric-algebra checks
+./gradlew combatTest    # 245 combat/field/rule checks
+./gradlew weTest        # 38 selection/shape/clipboard/undo checks
+./gradlew build         # compile + package
+```
+
+The math core also has dense, sparse, batch, matrix, JMH, and multicore
+benchmarks. See [`lib/versor-java/PERFORMANCE.md`](lib/versor-java/PERFORMANCE.md)
+and [`lib/versor-java/docs/KERNEL_SCHEDULING.md`](lib/versor-java/docs/KERNEL_SCHEDULING.md).
+
+## Project layout
+
+```text
+src/main/java/com/gblmx/versormotion/
+  CombatManager.java       server-authoritative swing adjudication
+  RollManager.java         dodge-roll state and cooldown
+  FluidDrag.java           quadratic hydrodynamic drag
+  combat/                  arc sweep, guard plane, rules
+  field/                   vortex and tornado baking
+  wedit/                   bounded WorldEdit-style core
+  net/                     S2C payloads
+src/client/java/...        rendering, animation, camera, particles
+src/main/resources/        mod metadata, mixins, datapack defaults
+src/test/java/...          standalone combat/we checks
+lib/versor-java/           pure-Java geometric algebra core (submodule)
+docs/                      architecture, commands, math, development
+```
+
+## Compatibility and limits
+
+- **Minecraft 26.3 / Java 25 only.** The render code targets the 26.3
+  `renderpearl` pipeline; older versions are not supported.
+- **Server-authoritative by design.** Client-only installation gives no combat
+  advantage and may miss visuals.
+- **WorldEdit-style editing is intentionally bounded.** One command touches at
+  most 32,768 blocks; radius ≤ 32; cylinder height ≤ 64. NBT, schematics,
+  region files, and multi-point selections are not implemented.
+- **`//` prefix conflict.** The `//command` hook claims that prefix, so it
+  conflicts with WorldEdit and similar mods. Use one at a time.
+- **Apache-2.0.** See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+## Documentation
+
+| Document | Contents |
+|---|---|
+| [Documentation index](docs/README.md) | Map of all docs. |
+| [Architecture](docs/ARCHITECTURE.md) | Modules, authority, networking, rendering. |
+| [Commands](docs/COMMANDS.md) | `/versor` and `/we` reference. |
+| [Combat](docs/COMBAT.md) | Arc, parry, roll, damage, compatibility. |
+| [Configuration](docs/CONFIGURATION.md) | `combat.json` and reload behavior. |
+| [Math and physics](docs/MATH_PHYSICS.md) | GA, PGA/CGA, kinematics, fields, fluid. |
+| [Kernel scheduling](lib/versor-java/docs/KERNEL_SCHEDULING.md) | Dense/sparse/batch/matrix dispatch. |
+| [Development](docs/DEVELOPMENT.md) | Build, test, submodule, CI, debugging. |
+| [Roadmap](docs/ROADMAP.md) | Current scope and next steps. |
+
+## Contributing
+
+Issues and pull requests are welcome. Please read
+[CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR. In short:
+
+1. Open an issue for behavior changes or compatibility work.
+2. Keep changes focused; include the narrowest relevant test.
+3. Run `./gradlew gaTest combatTest weTest build` before pushing.
+4. Update docs when a command, config key, or payload changes.
+
+For security issues, follow [SECURITY.md](SECURITY.md) instead of opening a
+public issue.
+
+## References
+
+| Source | Use |
+|---|---|
+| [`versor-java`](https://github.com/GBLMX/versor-java) | Geometric algebra core. |
+| Macdonald, *Linear and Geometric Algebra* | Rotors and interpolation. |
+| Macdonald, *Vector and Geometric Calculus* | Vector derivative, flux. |
+| [Klein](https://github.com/jeremyong/klein) | PGA scalar conventions and sign tables. |
+| [Aerodynamics4MC-Core](https://github.com/MozillaFiredoge/Aerodynamics4MC-Core) | Thin entrypoints, server authority, quantized sync. |
+
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
