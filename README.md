@@ -52,6 +52,31 @@ src/client/java/com/...     客户端渲染与 mixin
 src/main/resources/         fabric.mod.json
 ```
 
+## 游戏内命令
+
+WorldEdit 风格子命令，全部为只读查询，不需要玩家实体，因此可直接放进
+命令方块 / 数据包函数 / 服务器控制台；坐标支持 `~`。
+
+```text
+/versor field at <pos>
+/versor motion rotation <axis> <omega> <time> <point>
+/versor sweep rotation <axis> <omega> <t0> <t1> <samples> <point>
+/vm ...                                # 别名
+```
+
+- `field`：输出 `F`、散度、旋度；
+- `motion`：输出位置、速度、加速度；
+- `sweep`：输出扫掠 AABB 与路径长度，并返回采样数，可配合
+  `execute store result ... run versor sweep ...` 使用。
+
+示例（服务器控制台实测）：
+
+```text
+F(1.000, 2.000, 3.000) = (-2.000, 1.000, 0.000); div = 0.000; curl = (-0.000, -0.000, 2.000)
+motion t=0.500: pos = (0.878, 0.479, 0.000); vel = (-0.479, 0.878, 0.000); acc = (-0.878, -0.479, 0.000)
+sweep 4 samples: aabb = [(0.540, 0.000, 0.000), (1.000, 0.841, 0.000)]; length = 0.995
+```
+
 ## 26.3 渲染 API 注意
 
 26.3 把渲染栈从 `com.mojang.blaze3d.*` 迁到了 `com.mojang.renderpearl.*`：

@@ -59,6 +59,11 @@ java {
 }
 
 // Headless CI has no xvfb-run; the dev client runs on the local display.
+// Forward console input so commands can be tested from a script.
+tasks.named('runServer') {
+	standardInput = System.in
+}
+
 tasks.named('runClient') {
 	useXvfb.set(false)
 }
