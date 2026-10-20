@@ -1,5 +1,6 @@
 package com.gblmx.versormotion;
 
+import java.util.Collection;
 import java.util.Locale;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -13,10 +14,13 @@ import com.gblmx.versormotion.field.FieldBurst;
 import com.gblmx.versormotion.field.Tornado;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.phys.Vec3;
 import vsr.Calculus;
@@ -46,6 +50,14 @@ public final class VersorCommands {
 								.executes(VersorCommands::roll))
 						.then(Commands.literal("rules")
 								.executes(VersorCommands::rules))
+						.then(Commands.literal("display")
+								.then(Commands.literal("rotate")
+										.then(Commands.argument("targets", EntityArgument.entities())
+												.then(Commands.argument("axis", Vec3Argument.vec3(false))
+														.then(Commands.argument("angle", DoubleArgumentType.doubleArg())
+																.executes(ctx -> displayRotate(ctx, false))
+																.then(Commands.literal("local")
+																		.executes(ctx -> displayRotate(ctx, true))))))))
 						.then(Commands.literal("field")
 								.then(Commands.literal("at")
 										.then(Commands.argument("pos", Vec3Argument.vec3(false))
@@ -82,7 +94,8 @@ public final class VersorCommands {
 		source.sendSuccess(() -> Component.literal(
 				"versor: field at <pos> | field burst <pos> | field tornado <pos>"
 						+ " | motion rotation <axis> <omega> <time> <point>"
-						+ " | sweep rotation <axis> <omega> <t0> <t1> <samples> <point> | attack | roll | rules"), false);
+						+ " | sweep rotation <axis> <omega> <t0> <t1> <samples> <point>"
+						+ " | display rotate <targets> <axis> <angle> [local] | attack | roll | rules"), false);
 		return 1;
 	}
 
@@ -118,6 +131,36 @@ public final class VersorCommands {
 			return 0;
 		}
 		return 1;
+	}
+
+	private static int displayRotate(CommandContext<CommandSourceStack> ctx, boolean local) throws CommandSyntaxException {
+		Vec3 axis = Vec3Argument.getVec3(ctx, "axis");
+		double angle = Math.toRadians(DoubleArgumentType.getDouble(ctx, "angle"));
+		Multivector rotor;
+		try {
+			rotor = E3.rotor(axis.x, axis.y, axis.z, angle);
+		} catch (IllegalArgumentException e) {
+			ctx.getSource().sendFailure(Component.literal(e.getMessage()));
+			return 0;
+		}
+
+		Collection<? extends Entity> targets = EntityArgument.getEntities(ctx, "targets");
+		int rotated = 0;
+		for (Entity entity : targets) {
+			if (entity instanceof Display display) {
+				DisplayTransforms.rotate(display, rotor, local);
+				rotated++;
+			}
+		}
+		if (rotated == 0) {
+			ctx.getSource().sendFailure(Component.literal("display rotate: no Display entities in targets"));
+			return 0;
+		}
+		final int count = rotated;
+		ctx.getSource().sendSuccess(() -> Component.literal(
+				"display rotate: " + count + " entity(ies), "
+						+ (local ? "right_rotation (local)" : "left_rotation (world)")), false);
+		return rotated;
 	}
 
 	private static int rules(CommandContext<CommandSourceStack> ctx) {

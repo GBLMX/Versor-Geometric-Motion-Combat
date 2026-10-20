@@ -5,7 +5,7 @@ multivector fields from the [versor-java](https://github.com/GBLMX/versor-java) 
 
 ## 当前状态
 
-- 数学核心以 git submodule 引入（`lib/versor-java`），235 项断言通过。
+- 数学核心以 git submodule 引入（`lib/versor-java`），236 项断言通过。
 - 客户端渲染 spike：
   - `Motion.rotation` 驱动的 PGA motor 立方体（玩家前方 3 格）；
   - 由多重向量场 `F(x) = (-y, x, 0)` 积分出的场流线；
@@ -38,6 +38,9 @@ multivector fields from the [versor-java](https://github.com/GBLMX/versor-java) 
 - CGA：`vsr.Conformal` 提供共形点/球/平面/圆（Cl(4,1)），含点-球、点-圆关联检查。
 - 创世神式编辑：`/we` 命令树 + `//` 拦截，提供选区、set/replace、球/圆柱、copy/cut/paste、
   undo/redo；单次编辑上限 32768 方块，详见下文。
+- Display Entity 兼容：`DisplayTransforms` 读取/写回完整 `transformation`，
+  `left_rotation`、`right_rotation`、`translation`、`scale` 互不覆盖；
+  `/versor display rotate` 用 E3 转子修改任一侧。
 
 ## 环境
 
@@ -73,7 +76,7 @@ JAVA_HOME=~/.jdks/jbrsdk-25.0.3 ./gradlew runClient
 
 ```
 lib/versor-java/            纯数学核心 + JOML 适配（git submodule）
-src/main/java/com/...       公共入口、combat 判定、field 烘焙、wedit 编辑核心、网络包
+src/main/java/com/...       公共入口、combat 判定、field 烘焙、wedit 编辑核心、Display 变换、网络包
 src/client/java/com/...     客户端渲染、动画、镜头、自定义粒子与 mixin
 src/main/resources/         fabric.mod.json、mixin 配置
 src/client/resources/       assets（swing_spark 粒子定义与贴图）
@@ -91,6 +94,7 @@ WorldEdit 风格子命令。查询类命令（`field` / `motion` / `sweep`）不
 /versor field tornado <pos>
 /versor motion rotation <axis> <omega> <time> <point>
 /versor sweep rotation <axis> <omega> <t0> <t1> <samples> <point>
+/versor display rotate <targets> <axis> <angle> [local]
 /versor attack                         # 挥砍：服务端判定并广播烘焙弧（需玩家执行者）
 /versor roll                           # 翻滚（需玩家执行者）
 /vm ...                                # 别名
@@ -102,6 +106,9 @@ WorldEdit 风格子命令。查询类命令（`field` / `motion` / `sweep`）不
 - `motion`：输出位置、速度、加速度；
 - `sweep`：输出扫掠 AABB 与路径长度，并返回采样数，可配合
   `execute store result ... run versor sweep ...` 使用；
+- `display rotate`：对目标 Display 实体叠加 E3 转子。默认写入
+  `left_rotation`（实体原点处的世界旋转）；末尾加 `local` 写入
+  `right_rotation`（局部旋转）；角度单位为度。`translation`、`scale` 与另一侧旋转保持不变；
 - `attack`：按服务端眼位/朝向判定，返回本次弧线额外命中的目标数；
 - `roll`：0.6 b/t 冲量 + 10 tick 无敌，20 tick 冷却。
 
