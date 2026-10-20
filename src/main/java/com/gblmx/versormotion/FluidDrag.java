@@ -31,17 +31,21 @@ public final class FluidDrag {
 	 * @param submerged fraction of the entity box under the fluid surface, 0..1
 	 */
 	public static Vec3 apply(Vec3 velocity, Vec3 vanilla, double density,
-			double width, double height, double submerged) {
+			double width, double height, double submerged, double dragScale) {
 		double speed = velocity.length();
 		if (speed < 1e-9 || submerged <= 0 || width <= 1e-9 || height <= 1e-9) {
 			return vanilla;
 		}
 		double mass = WATER_DENSITY * width * width * height;
 		double k = 0.5 * density * DRAG_COEFFICIENT * (width * height) / mass * submerged;
-		return velocity.scale(1.0 / (1.0 + k * speed));
+		double horizontal = k * dragScale;
+		return new Vec3(
+				velocity.x / (1.0 + horizontal * speed),
+				velocity.y / (1.0 + k * speed),
+				velocity.z / (1.0 + horizontal * speed));
 	}
 
-	public static Vec3 applyWater(LivingEntity entity, Vec3 velocity, Vec3 vanilla) {
+	public static Vec3 applyWater(LivingEntity entity, Vec3 velocity, Vec3 vanilla, double slowDown) {
 		// Bubble columns are a scripted lift, not free-stream drag; keep their
 		// vanilla damping so soul-sand elevators and magma sinks behave as designed.
 		if (inBubbleColumn(entity)) {
@@ -53,7 +57,10 @@ public final class FluidDrag {
 		}
 		double fluidHeight = entity.getFluidHeight(FluidTags.WATER);
 		double submerged = Math.min(1.0, Math.max(0.0, fluidHeight / height));
-		return apply(velocity, vanilla, WATER_DENSITY, entity.getBbWidth(), height, submerged);
+		// Vanilla encodes buffs as less linear damping: 0.8 baseline, 0.9 sprinting,
+		// 0.96 Dolphin's Grace. Keep that relative benefit in the quadratic model.
+		double dragScale = Math.max(0.05, (1.0 - slowDown) / 0.2);
+		return apply(velocity, vanilla, WATER_DENSITY, entity.getBbWidth(), height, submerged, dragScale);
 	}
 
 	private static boolean inBubbleColumn(LivingEntity entity) {

@@ -21,6 +21,6 @@ public abstract class LivingEntityFluidDragMixin {
 					value = "INVOKE",
 					target = "Lnet/minecraft/world/phys/Vec3;multiply(DDD)Lnet/minecraft/world/phys/Vec3;"))
 	private Vec3 versormotion$quadraticDrag(Vec3 velocity, double x, double y, double z) {
-		return FluidDrag.applyWater((LivingEntity) (Object) this, velocity, velocity.multiply(x, y, z));
+		return FluidDrag.applyWater((LivingEntity) (Object) this, velocity, velocity.multiply(x, y, z), x);
 	}
 }
