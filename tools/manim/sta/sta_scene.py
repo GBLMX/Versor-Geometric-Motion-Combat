@@ -13,6 +13,8 @@ import numpy as np
 
 from manimlib import *
 
+from versor_ga import KDE
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(HERE, "data", "sta.json")) as fh:
     DATA = json.load(fh)
@@ -39,7 +41,7 @@ def interpolate(p, xs, ys):
     return float(np.interp(p, xs, ys))
 
 
-def make_cube(verts, color=BLUE_C, width=0.035):
+def make_cube(verts, color=KDE.line, width=0.035):
     return Group(*[Line3D(verts[i], verts[j], width=width, color=color) for i, j in CUBE_E])
 
 
@@ -47,6 +49,7 @@ class STASpacetime(Scene):
     """Rotor sandwich R v R~ acting on a spacetime vector + contraction."""
 
     def construct(self):
+        self.camera.background_color = KDE.background
         title = Tex(r"\text{Spacetime Algebra}\ \ \mathrm{Cl}(1,3)", font_size=52)
         title.to_edge(UP, buff=0.35)
         relations = Tex(
@@ -72,20 +75,20 @@ class STASpacetime(Scene):
             y_range=(-2.7, 2.7, 1),
             width=5.6,
             height=5.6,
-            axis_config=dict(stroke_color=GREY_B, stroke_width=2),
+            axis_config=dict(stroke_color=KDE.axes, stroke_width=2),
         )
         axes.move_to(RIGHT * 3.5 + DOWN * 0.15)
         t_label = Tex("t", font_size=34).next_to(axes.get_x_axis().get_end(), RIGHT, buff=0.15)
         x_label = Tex("x", font_size=34).next_to(axes.get_y_axis().get_end(), UP, buff=0.15)
 
-        cone1 = DashedLine(axes.c2p(-2.6, -2.6), axes.c2p(2.6, 2.6), color=GREY_B, stroke_width=2)
-        cone2 = DashedLine(axes.c2p(-2.6, 2.6), axes.c2p(2.6, -2.6), color=GREY_B, stroke_width=2)
+        cone1 = DashedLine(axes.c2p(-2.6, -2.6), axes.c2p(2.6, 2.6), color=KDE.axes, stroke_width=2)
+        cone2 = DashedLine(axes.c2p(-2.6, 2.6), axes.c2p(2.6, -2.6), color=KDE.axes, stroke_width=2)
 
         phi_max = 1.6
         hyperbola = ParametricCurve(
             lambda p: axes.c2p(np.sinh(p), np.cosh(p)),
             t_range=(0, phi_max, 0.01),
-            color=TEAL,
+            color=KDE.sphere,
             stroke_width=4,
         )
 
@@ -105,7 +108,7 @@ class STASpacetime(Scene):
             return Arrow(
                 axes.c2p(0, 0), axes.c2p(t, x),
                 buff=0, thickness=6,
-                fill_color=YELLOW, fill_opacity=1.0,
+                fill_color=KDE.vector, fill_opacity=1.0,
                 tip_width_ratio=5,
             )
 
@@ -135,14 +138,14 @@ class STASpacetime(Scene):
             end = rod_x0 + rod_len * 2 * factor
             return Line(
                 np.array([rod_x0, rod_y, 0]), np.array([end, rod_y, 0]),
-                stroke_width=9, color=GREEN,
+                stroke_width=9, color=KDE.attribute,
             )
 
         rod_mob = always_redraw(rod)
         rod_brace = Brace(Line(
             np.array([rod_x0, rod_y - 0.35, 0]),
             np.array([rod_x0 + rod_len * 2, rod_y - 0.35, 0]),
-        ), DOWN, color=GREY_B)
+        ), DOWN, color=KDE.axes)
         rod_caption = Tex(r"L_0", font_size=30).next_to(rod_brace, DOWN, buff=0.08)
         gamma_caption = Tex(r"L=L_0/\cosh\phi", font_size=30)
 
@@ -172,13 +175,14 @@ class STAGraphics(ThreeDScene):
     """Boost contraction and Wigner rotation of a wireframe cube."""
 
     def construct(self):
+        self.camera.background_color = KDE.background
         self.frame.reorient(68, -48)
         self.frame.set_height(9.0)
 
         axes = ThreeDAxes(
             x_range=(-3, 3, 1), y_range=(-3, 3, 1), z_range=(-3, 3, 1),
             width=6, height=6, depth=6,
-            axis_config=dict(stroke_color=GREY_C, stroke_width=2),
+            axis_config=dict(stroke_color=KDE.axes, stroke_width=2),
         )
         axes.add_axis_labels(
             r"\gamma_1", r"\gamma_2", r"\gamma_3", font_size=30, buff=0.15
@@ -224,7 +228,7 @@ class STAGraphics(ThreeDScene):
             a = interpolate(p, TH_PHI, SIGNED_ANGLE)
             c, s = np.cos(a), np.sin(a)
             r = np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]])
-            return make_cube(CUBE_V @ r.T, color=YELLOW_C)
+            return make_cube(CUBE_V @ r.T, color=KDE.string)
 
         cube2 = always_redraw(rotated_cube)
         self.add(cube2)

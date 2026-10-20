@@ -14,6 +14,7 @@ and helpers for Manim mobjects. It is not a replacement for `clifford` or
 """
 
 from .algebra import Multivector, Signature, nlerp
+from .palette import KDE, Palette
 from .presets import (
     CGA,
     E3,
@@ -32,11 +33,13 @@ __all__ = [
     "CGASphere",
     "E3",
     "E3Rotor",
+    "KDE",
     "Line",
     "Motor",
     "Multivector",
     "PGA",
     "PGARotor",
+    "Palette",
     "Plane",
     "Point",
     "Signature",

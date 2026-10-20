@@ -13,6 +13,7 @@ from math import cos, sin, tau
 import numpy as np
 
 from .algebra import Multivector, Signature
+from .palette import KDE
 
 E3_SIG = Signature((1, 1, 1))
 PGA_SIG = Signature((0, 1, 1, 1))
@@ -90,7 +91,7 @@ class Point:
     coords: np.ndarray
     mv: Multivector
 
-    def to_mobject(self, radius: float = 0.05, color="#FFD166", **kwargs):
+    def to_mobject(self, radius: float = 0.05, color: str = KDE.point, **kwargs):
         from manimlib import Sphere
 
         return Sphere(radius=radius, color=color, **kwargs).move_to(self.coords)
@@ -101,7 +102,7 @@ class Line:
     start: np.ndarray
     end: np.ndarray
 
-    def to_mobject(self, color="#4EA8DE", width: float = 0.04, extend: float = 0.0, **kwargs):
+    def to_mobject(self, color: str = KDE.line, width: float = 0.04, extend: float = 0.0, **kwargs):
         from manimlib import Line3D
 
         d = self.end - self.start
@@ -123,7 +124,7 @@ class Plane:
 
     def to_mobject(
         self,
-        color="#B388EB",
+        color: str = KDE.plane,
         opacity: float = 0.22,
         extent: float = 2.0,
         resolution: int = 2,
@@ -157,7 +158,7 @@ class CGASphere:
 
     def to_mobject(
         self,
-        color="#2EC4B6",
+        color: str = KDE.sphere,
         opacity: float = 0.28,
         resolution: tuple[int, int] = (32, 16),
         **kwargs,

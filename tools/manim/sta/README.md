@@ -50,3 +50,4 @@ uv run manimgl sta/sta_scene.py STAGraphics -w --video_dir videos
 - `manimpango` 无 cp314 Linux wheel，uv 会源码编译（系统需 pango 头文件）
 - 注意：上游 `setup.cfg` 的 `install_requires` 漏了 `av`（它在 `requirements.txt` 中），因此根目录 `pyproject.toml` 显式加入 `av`
 - 渲染：wgpu/Vulkan（RTX 3060），LaTeX 经 `latex` + `dvisvgm`
+- 配色：从 `versor_ga.KDE` 读取 KDE CachyOS Nord / fish / zsh 调色板（仅颜色依赖，数学仍由 Wolfram 计算）

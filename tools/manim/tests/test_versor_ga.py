@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from versor_ga import CGA, E3, PGA, nlerp
+from versor_ga import CGA, E3, KDE, PGA, nlerp
 from versor_ga.animation import MotorAnimation, RotorAnimation
 
 
@@ -61,6 +61,14 @@ class ManimAdapterTests(unittest.TestCase):
         self.assertIsInstance(line, Line3D)
         self.assertIsInstance(plane, ParametricSurface)
         self.assertIsInstance(sphere, Sphere)
+
+    def test_mobject_palette_defaults(self):
+        self.assertEqual(PGA.point(0, 0, 0).to_mobject().get_color(), KDE.point)
+        self.assertEqual(PGA.line((0, 0, 0), (1, 0, 0)).to_mobject().get_color(), KDE.line)
+        self.assertEqual(PGA.plane((0, 0, 1), 0).to_mobject().get_color(), KDE.plane)
+        self.assertEqual(CGA.sphere(0, 0, 0, 1).to_mobject().get_color(), KDE.sphere)
+        self.assertEqual(KDE.background, "#161925")
+        self.assertEqual(KDE.keyword, "#FF6A00")
 
     def test_rotor_animation(self):
         from manimlib import Line3D, ORIGIN

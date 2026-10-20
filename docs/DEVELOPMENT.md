@@ -94,9 +94,11 @@ The ManimGL environment is pinned by `tools/manim/pyproject.toml` and
 `tools/manim/uv.lock` (Python 3.14, ManimGL git commit, `av`). It no longer
 depends on `/tmp`.
 
-`tools/manim/versor_ga/` is a small E3/PGA/CGA library for animation authoring:
+`versor_ga` is a small E3/PGA/CGA library for animation authoring:
 multivectors with `.mv`, geometric wrappers with `.to_mobject()`, and
-`RotorAnimation` / `MotorAnimation`.
+`RotorAnimation` / `MotorAnimation`. `versor_ga.KDE` is the palette sampled from
+the active KDE CachyOS Nord scheme and fish/zsh syntax colors; preset mobjects
+use it by default.
 
 ```bash
 cd tools/manim

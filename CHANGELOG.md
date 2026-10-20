@@ -26,6 +26,8 @@ of Keep a Changelog; versions use `MAJOR.MINOR.PATCH`.
   rotor scene and the migrated STA/Cl(1,3) scene.
 - `versor_ga`, a small E3/PGA3/CGA3 Clifford library for Manim with geometric
   wrappers, `RotorAnimation`/`MotorAnimation`, tests, and a demo scene.
+- `versor_ga.KDE` palette sampled from the active KDE `CachyOSNordLightly`
+  scheme plus fish/zsh syntax colors; demo, rotor, and STA scenes use it.
 - Cross-library GA benchmark under `tools/bench-ga/` for `versor-java`,
   `clifford`, and `kingdon`.
 - GitHub build workflow and issue/PR templates.

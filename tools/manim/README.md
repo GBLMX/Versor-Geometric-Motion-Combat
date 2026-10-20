@@ -9,7 +9,7 @@ Clifford algebra library written for animation authoring.
 |---|---|
 | `pyproject.toml` | Python 3.14, ManimGL pinned to a git commit, `av`, and the local `versor_ga` package. |
 | `uv.lock` | Fully resolved dependency graph. |
-| `versor_ga/` | E3/PGA3/CGA3 kernel, geometric wrappers, and Manim animations. |
+| `versor_ga/` | E3/PGA3/CGA3 kernel, geometric wrappers, KDE palette, and Manim animations. |
 | `ga_demo.py` | Rotor, motor, plane, line, point, and sphere demo. |
 | `versor_scene.py` | Scene driven by `data/versor-rotor.json` from `versor-java`. |
 | `bridge/VersorManimDump.java` | Generates the rotor samples using `vsr.E3`. |
@@ -43,27 +43,29 @@ Manim scene actually needs:
 ```python
 import numpy as np
 from manimlib import *
-from versor_ga import E3, PGA, CGA
+from versor_ga import CGA, E3, KDE, PGA
 from versor_ga.animation import RotorAnimation, MotorAnimation
 
 class Demo(ThreeDScene):
     def construct(self):
+        self.camera.background_color = KDE.background
+
         # E3 rotor
-        arrow = Line3D(ORIGIN, np.array([1.0, 0.0, 0.0]))
+        arrow = Line3D(ORIGIN, np.array([1.0, 0.0, 0.0]), color=KDE.vector)
         self.play(RotorAnimation(arrow, E3.rotor((0, 0, 1), PI / 2)))
 
         # PGA point/line/plane + motor
         p = PGA.point(1, 0, 0)
         q = PGA.point(2, 2, 1)
-        line = PGA.line(p, q).to_mobject(color=BLUE)
-        plane = PGA.plane((0, 0, 1), -2).to_mobject(color=PURPLE)
+        line = PGA.line(p, q).to_mobject(color=KDE.line)
+        plane = PGA.plane((0, 0, 1), -2).to_mobject(color=KDE.plane)
         self.play(ShowCreation(line), ShowCreation(plane))
         self.play(MotorAnimation(line, PGA.motor(
             PGA.rotor((0, 0, 1), PI / 2), (1, 0, 0),
         )))
 
         # CGA sphere
-        self.play(ShowCreation(CGA.sphere(0, 0, 0, 1).to_mobject(color=TEAL)))
+        self.play(ShowCreation(CGA.sphere(0, 0, 0, 1).to_mobject(color=KDE.sphere)))
 ```
 
 Geometry wrappers keep the data a scene needs: `Point`, `Plane`, and
@@ -78,6 +80,30 @@ All of them provide `.to_mobject()`.
 
 `RotorAnimation` rotates about `about_point`; `MotorAnimation` applies `T * R`
 in the PGA convention. `nlerp` interpolates rotors when you need a custom path.
+
+## Palette
+
+`from versor_ga import KDE` exposes the palette sampled from the active KDE
+`CachyOSNordLightly` scheme and the fish/zsh syntax colors. Preset mobjects use
+it by default, and `KDE` is a frozen dataclass so a scene can override roles
+without touching the library.
+
+| Role | Hex | Source |
+|---|---|---|
+| `background` | `#161925` | KDE `[Colors:View] BackgroundNormal`, kitty background |
+| `text` | `#47ADDA` | fish `fish_color_normal`, KDE View foreground |
+| `command` | `#66C2F2` | fish `fish_color_command`, zsh `command` |
+| `keyword` | `#FF6A00` | fish/zsh keyword, KDE `ForegroundNeutral` |
+| `string` | `#DFFC00` | fish/zsh quoted argument (lime) |
+| `number` | `#00C1E4` | fish `fish_color_valid_path`, zsh numeric constant |
+| `operator` | `#7CB7FF` | fish/zsh operators and redirections |
+| `comment` | `#666A73` | fish/zsh comments, KDE inactive text |
+| `error` | `#FF5370` | fish `fish_color_error` |
+| `selection` / `ink` | `#47ADD6` / `#0A0B0C` | KDE selection background / foreground |
+| `vector` / `point` / `line` / `plane` / `sphere` | `#FF6A00` / `#DFFC00` / `#00A8FF` / `#B30DBF` / `#00C1E4` | scene roles |
+
+The full ANSI 0-15 set and KDE accents are in
+[`versor_ga/palette.py`](versor_ga/palette.py).
 
 ## Tests and demo
 
