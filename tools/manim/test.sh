@@ -21,9 +21,16 @@ uv sync --frozen --no-config
 uv run --frozen --no-config python -m unittest discover -s tests -v
 uv run --frozen --no-config manimgl "$HERE/versor_scene.py" VersorRotor \
   -l -w --video_dir "$HERE/videos"
+uv run --frozen --no-config manimgl "$HERE/bridge_scene.py" JsonBridgeScene \
+  -l -w --video_dir "$HERE/videos"
 
 if [ ! -s "$HERE/videos/VersorRotor.mp4" ]; then
   echo "missing render: $HERE/videos/VersorRotor.mp4" >&2
   exit 1
 fi
+if [ ! -s "$HERE/videos/JsonBridgeScene.mp4" ]; then
+  echo "missing render: $HERE/videos/JsonBridgeScene.mp4" >&2
+  exit 1
+fi
 echo "render ok: $HERE/videos/VersorRotor.mp4"
+echo "render ok: $HERE/videos/JsonBridgeScene.mp4"

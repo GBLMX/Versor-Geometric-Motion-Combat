@@ -9,9 +9,11 @@ Clifford algebra library written for animation authoring.
 |---|---|
 | `pyproject.toml` | Python 3.14, ManimGL pinned to a git commit, `av`, and the local `versor_ga` package. |
 | `uv.lock` | Fully resolved dependency graph. |
-| `versor_ga/` | E3/PGA3/CGA3 kernel, geometric wrappers, KDE palette, and Manim animations. |
+| `versor_ga/` | E3/PGA3/CGA3 kernel, geometric wrappers, KDE palette, flat JSON bridge, and Manim animations. |
 | `ga_demo.py` | Rotor, motor, plane, line, point, and sphere demo. |
 | `versor_scene.py` | Scene driven by `data/versor-rotor.json` from `versor-java`. |
+| `bridge_data/` | Wolfram exporter and checked-in `data/demo.json` following the flat record contract. |
+| `bridge_scene.py` | ManimGL renderer for the flat JSON records. |
 | `bridge/VersorManimDump.java` | Generates the rotor samples using `vsr.E3`. |
 | `sta/` | The migrated STA/Cl(1,3) scene and Wolfram exporter. |
 | `tests/` | `versor_ga` algebra and Manim adapter tests. |
@@ -105,6 +107,47 @@ without touching the library.
 The full ANSI 0-15 set and KDE accents are in
 [`versor_ga/palette.py`](versor_ga/palette.py).
 
+## Flat JSON bridge
+
+Wolfram is the math engine; ManimGL is the renderer. The bridge contract is a
+JSON **list of flat records**, not one deeply nested object:
+
+```json
+[
+  {
+    "id": "sin_curve",
+    "kind": "sampled_polyline",
+    "style": {"color": "#FF6A00", "stroke_width": 5, "smooth": true},
+    "points": [[-5.0, -0.9589], [-4.98, -0.9412]]
+  }
+]
+```
+
+Supported `kind` values:
+
+| Kind | Payload | Manim result |
+|---|---|---|
+| `sampled_polyline` | `points: [[x, y], ...]` or `[[x, y, z], ...]` | `VMobject`, smooth by default |
+| `parametric` | `points: [[t, x, y], ...]` or `[[t, x, y, z], ...]` | `VMobject`; `t` is dropped |
+| `scalar_series` | `values: [v0, v1, ...]` | No mobject; `series_value(record, t)` for a `ValueTracker` |
+
+`versor_ga.bridge` validates ids, kinds, dimensions, and numeric payloads.
+`build_mobject` / `build_mobjects` convert with `axes.c2p`, so the axes ranges
+must cover the Wolfram sampling domain. `style` only controls color, stroke
+width, and `smooth`; the palette default is `KDE.text`.
+
+Generate the checked-in demo from `tools/manim` (the script writes a relative
+path because Wolfram's CJK path handling is unreliable on this machine):
+
+```bash
+cd tools/manim
+wolframscript -file bridge_data/generate_data.wls
+uv run --frozen --no-config manimgl bridge_scene.py JsonBridgeScene -l -w --video_dir videos
+```
+
+The Wolfram side exports `Normal[records]` to `bridge_data/data/demo.json`.
+`bridge_scene.py` reads only that file; it never invokes Wolfram during render.
+
 ## Tests and demo
 
 ```bash
@@ -128,10 +171,11 @@ The script:
 1. runs `lib/versor-java/build.sh` (454 algebra checks);
 2. compiles `bridge/VersorManimDump.java` against `lib/versor-java/out`;
 3. writes `data/versor-rotor.json` (61 E3 rotor samples);
-4. runs the `versor_ga` unit tests;
-5. renders `VersorRotor` at low quality into `videos/`.
+4. runs the `versor_ga` and bridge unit tests;
+5. renders `VersorRotor` at low quality into `videos/`;
+6. renders `JsonBridgeScene` from the checked-in flat data.
 
-Expected output: `videos/VersorRotor.mp4`.
+Expected outputs: `videos/VersorRotor.mp4` and `videos/JsonBridgeScene.mp4`.
 
 ## STA scene
 

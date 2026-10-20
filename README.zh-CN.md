@@ -182,7 +182,8 @@ data/versormotion/combat.json
 （`pyproject.toml` + `uv.lock`），包含用于动画编写的轻量 E3/PGA/CGA 库
 `versor_ga`、由 `versor-java` 数据驱动的 E3 转子场景，以及迁移后的
 STA/Cl(1,3) 场景。`versor_ga.KDE` 调色板取自当前 KDE CachyOS Nord 方案
-与 fish/zsh 语法高亮。联调测试：
+与 fish/zsh 语法高亮。`bridge_scene.py` 演示 `versor_ga.bridge` 的扁平
+Wolfram -> JSON -> ManimGL 数据契约。联调测试：
 
 ```bash
 cd tools/manim

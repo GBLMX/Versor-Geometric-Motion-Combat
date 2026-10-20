@@ -100,6 +100,15 @@ multivectors with `.mv`, geometric wrappers with `.to_mobject()`, and
 the active KDE CachyOS Nord scheme and fish/zsh syntax colors; preset mobjects
 use it by default.
 
+The flat Wolfram -> JSON bridge is `versor_ga/bridge.py`: records carry
+`id`, `kind`, `style`, and either `points` or `values`. `bridge_data/generate_data.wls`
+exports `bridge_data/data/demo.json`; `bridge_scene.py` consumes it without
+invoking Wolfram during rendering. Rebuild the demo data from `tools/manim`:
+
+```bash
+wolframscript -file bridge_data/generate_data.wls
+```
+
 ```bash
 cd tools/manim
 uv sync --frozen --no-config
