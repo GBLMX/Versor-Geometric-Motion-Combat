@@ -124,11 +124,14 @@ public final class TrailAnimations {
 			}
 			int total = trail.points.length / 3;
 			int reached = Math.min(total, (int) Math.ceil(t * total));
+			boolean particles = VersorClientConfig.get().swingParticles;
 			for (; trail.emitted < reached; trail.emitted++) {
 				int i = trail.emitted * 3;
-				minecraft.level.addParticle(VersorParticles.SWING_SPARK,
-						trail.points[i], trail.points[i + 1], trail.points[i + 2],
-						0.0, 0.0, 0.0);
+				if (particles) {
+					minecraft.level.addParticle(VersorParticles.SWING_SPARK,
+							trail.points[i], trail.points[i + 1], trail.points[i + 2],
+							0.0, 0.0, 0.0);
+				}
 			}
 		}
 	}

@@ -18,6 +18,9 @@
 		],
 		"client": [
 			"com.gblmx.versormotion.client.VersorMotionClient"
+		],
+		"modmenu": [
+			"com.gblmx.versormotion.client.VersorModMenu"
 		]
 	},
 	"mixins": [
@@ -33,6 +36,10 @@
 		"fabricloader": ">=0.19.5",
 		"minecraft": "~26.3",
 		"java": ">=25",
-		"fabric-api": "*"
+		"fabric-api": "*",
+		"cloth-config": ">=26.3.159"
+	},
+	"suggests": {
+		"modmenu": ">=21.0.0"
 	}
 }

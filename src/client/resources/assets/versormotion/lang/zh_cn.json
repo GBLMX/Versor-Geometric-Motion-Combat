@@ -1,0 +1,10 @@
+{
+	"config.versormotion.title": "几何运动",
+	"config.versormotion.category.visuals": "表现",
+	"config.versormotion.swing_particles": "挥砍粒子",
+	"config.versormotion.swing_particles.tooltip": "把服务端烘焙的刀弧按点回放为粒子。",
+	"config.versormotion.arc_mesh": "刀弧网格",
+	"config.versormotion.arc_mesh.tooltip": "绘制服务端判定的刀弧体积。",
+	"config.versormotion.camera_shake": "镜头抖动（%）",
+	"config.versormotion.camera_shake.tooltip": "缩放受伤时的镜头抖动，0 为关闭。"
+}

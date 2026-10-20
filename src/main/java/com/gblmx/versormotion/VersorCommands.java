@@ -8,7 +8,9 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.gblmx.versormotion.combat.CombatRules;
 import com.gblmx.versormotion.field.FieldBurst;
+import com.gblmx.versormotion.field.Tornado;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
@@ -24,9 +26,10 @@ import vsr.Motion;
 import vsr.Multivector;
 
 /**
- * In-game interface. Every command is a pure query on the command source and
- * never needs a player, so it also runs from command blocks, functions and the
- * server console. Positions accept relative coordinates (~).
+ * In-game interface. Query and effect commands all run off the command source,
+ * so they work from command blocks, functions and the server console; only the
+ * actor commands ({@code attack}, {@code roll}) need a player executor.
+ * Positions accept relative coordinates (~).
  */
 public final class VersorCommands {
 	private static final Field SWIRL = (x, y, z) -> E3.vec(-y, x, 0);
@@ -41,13 +44,18 @@ public final class VersorCommands {
 								.executes(VersorCommands::attack))
 						.then(Commands.literal("roll")
 								.executes(VersorCommands::roll))
+						.then(Commands.literal("rules")
+								.executes(VersorCommands::rules))
 						.then(Commands.literal("field")
 								.then(Commands.literal("at")
 										.then(Commands.argument("pos", Vec3Argument.vec3(false))
 												.executes(VersorCommands::fieldAt)))
 								.then(Commands.literal("burst")
 										.then(Commands.argument("pos", Vec3Argument.vec3(false))
-												.executes(VersorCommands::fieldBurst))))
+												.executes(VersorCommands::fieldBurst)))
+								.then(Commands.literal("tornado")
+										.then(Commands.argument("pos", Vec3Argument.vec3(false))
+												.executes(VersorCommands::fieldTornado))))
 						.then(Commands.literal("motion")
 								.then(Commands.literal("rotation")
 										.then(Commands.argument("axis", Vec3Argument.vec3(false))
@@ -72,8 +80,9 @@ public final class VersorCommands {
 
 	private static int usage(CommandSourceStack source) {
 		source.sendSuccess(() -> Component.literal(
-				"versor: field at <pos> | field burst <pos> | motion rotation <axis> <omega> <time> <point>"
-						+ " | sweep rotation <axis> <omega> <t0> <t1> <samples> <point> | attack | roll"), false);
+				"versor: field at <pos> | field burst <pos> | field tornado <pos>"
+						+ " | motion rotation <axis> <omega> <time> <point>"
+						+ " | sweep rotation <axis> <omega> <t0> <t1> <samples> <point> | attack | roll | rules"), false);
 		return 1;
 	}
 
@@ -83,6 +92,14 @@ public final class VersorCommands {
 		ctx.getSource().sendSuccess(() -> Component.literal(
 				"field burst: " + samples + " particles"), false);
 		return samples;
+	}
+
+	private static int fieldTornado(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		Vec3 p = Vec3Argument.getVec3(ctx, "pos");
+		int points = Tornado.spawn(ctx.getSource().getLevel(), p);
+		ctx.getSource().sendSuccess(() -> Component.literal(
+				"tornado: " + points + " funnel points, " + Tornado.TICKS + " ticks"), false);
+		return points;
 	}
 
 	private static int attack(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
@@ -100,6 +117,17 @@ public final class VersorCommands {
 			ctx.getSource().sendFailure(Component.literal("roll is on cooldown"));
 			return 0;
 		}
+		return 1;
+	}
+
+	private static int rules(CommandContext<CommandSourceStack> ctx) {
+		CombatRules rules = CombatRules.get();
+		ctx.getSource().sendSuccess(() -> Component.literal(String.format(Locale.ROOT,
+				"combat: damage=%.2f knockback=%.2f cooldown=%d swing=%dt reach=%.1f..%.1f"
+						+ " parry=%s@%.2f field=%dx%d/%dt",
+				rules.arcDamage(), rules.knockback(), rules.swingCooldownTicks(), rules.swingTicks(),
+				rules.minReach(), rules.maxReach(), rules.parry(), rules.parryReach(),
+				rules.fieldSeeds(), rules.fieldSteps(), rules.fieldTicks())), false);
 		return 1;
 	}
 

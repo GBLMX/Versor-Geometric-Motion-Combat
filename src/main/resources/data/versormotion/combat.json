@@ -1,0 +1,13 @@
+{
+	"arc_damage": 2.0,
+	"knockback": 0.3,
+	"swing_cooldown_ticks": 4,
+	"swing_ticks": 6,
+	"min_reach": 2.0,
+	"max_reach": 6.0,
+	"parry": true,
+	"parry_reach": 1.15,
+	"field_seeds": 10,
+	"field_steps": 6,
+	"field_ticks": 10
+}

@@ -1,5 +1,6 @@
 package com.gblmx.versormotion.client;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -9,7 +10,10 @@ import com.gblmx.versormotion.net.CameraShakePayload;
 import com.gblmx.versormotion.net.FieldBurstPayload;
 import com.gblmx.versormotion.net.RollPayload;
 import com.gblmx.versormotion.net.SwingPayload;
+import com.gblmx.versormotion.net.TornadoPayload;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -57,8 +61,9 @@ public final class VersorMotionClient implements ClientModInitializer {
 	private static final Vector4f COLOR_MODULATOR = new Vector4f(1f, 1f, 1f, 1f);
 	private static final Vector3f MODEL_OFFSET = new Vector3f();
 	private static final Matrix4f TEXTURE_MATRIX = new Matrix4f();
+	private static final Matrix4f TORNADO_MATRIX = new Matrix4f();
 	private static final StagedVertexBuffer BUFFER =
-			new StagedVertexBuffer(() -> "Versor field", 1 << 16);
+			new StagedVertexBuffer(() -> "Versor field", 1 << 19);
 
 	private static final Field SWIRL = (x, y, z) -> E3.vec(-y, x, 0);
 	private static final int SEEDS = 5;
@@ -69,6 +74,7 @@ public final class VersorMotionClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		VersorClientConfig.init();
 		LevelExtractionEvents.END_EXTRACTION.register(this::extract);
 		LevelRenderEvents.END_MAIN.register(this::render);
 		ParticleProviderRegistry.getInstance().register(VersorParticles.SWING_SPARK,
@@ -81,13 +87,26 @@ public final class VersorMotionClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(FieldBurstPayload.TYPE, (payload, context) ->
 				context.client().execute(() -> TrailAnimations.startBurst(
 						payload.duration(), payload.points())));
+		ClientPlayNetworking.registerGlobalReceiver(TornadoPayload.TYPE, (payload, context) ->
+				context.client().execute(() -> TornadoAnimations.start(
+						payload.x(), payload.y(), payload.z(), payload.duration(), payload.points())));
 		ClientPlayNetworking.registerGlobalReceiver(CameraShakePayload.TYPE, (payload, context) ->
 				context.client().execute(() -> CameraShake.start(
 						payload.amplitude(), payload.duration())));
 		ClientTickEvents.END_CLIENT_TICK.register(TrailAnimations::tick);
+		ClientTickEvents.END_CLIENT_TICK.register(TornadoAnimations::tick);
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registry) ->
+				dispatcher.register(ClientCommands.literal("versorclient")
+						.then(ClientCommands.literal("config").executes(context -> {
+							Minecraft minecraft = Minecraft.getInstance();
+							minecraft.execute(() -> minecraft.setScreenAndShow(
+									VersorClientConfig.screen(null)));
+							return 1;
+						}))));
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			RollAnimations.clear();
 			TrailAnimations.clear();
+			TornadoAnimations.clear();
 			CameraShake.clear();
 		});
 	}
@@ -160,18 +179,39 @@ public final class VersorMotionClient implements ClientModInitializer {
 
 		// Server-baked swing arcs: the client only replays the volume the server
 		// adjudicated, fading out as the swing completes.
-		for (int id : TrailAnimations.arcIds()) {
-			float[] arc = TrailAnimations.points(id);
-			float t = TrailAnimations.progress(id);
-			if (arc == null || t < 0f) {
-				continue;
+		if (VersorClientConfig.get().arcMesh) {
+			for (int id : TrailAnimations.arcIds()) {
+				float[] arc = TrailAnimations.points(id);
+				float t = TrailAnimations.progress(id);
+				if (arc == null || t < 0f) {
+					continue;
+				}
+				float alpha = 0.9f * (1f - t);
+				for (int i = 0; i + 2 < arc.length; i += 3) {
+					Matrix4f blade = new Matrix4f(pose.last().pose());
+					blade.translate(arc[i], arc[i + 1], arc[i + 2]);
+					renderBox(blade, builder, -0.035f, -0.035f, -0.035f, 0.035f, 0.035f, 0.035f,
+							0.45f, 0.85f, 1.0f, alpha);
+				}
 			}
-			float alpha = 0.9f * (1f - t);
-			for (int i = 0; i + 2 < arc.length; i += 3) {
-				Matrix4f blade = new Matrix4f(pose.last().pose());
-				blade.translate(arc[i], arc[i + 1], arc[i + 2]);
-				renderBox(blade, builder, -0.035f, -0.035f, -0.035f, 0.035f, 0.035f, 0.035f,
-						0.45f, 0.85f, 1.0f, alpha);
+		}
+
+		// Server-baked tornadoes: the client only spins and fades the funnel.
+		Minecraft minecraft = Minecraft.getInstance();
+		float partial = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+		List<TornadoAnimations.Snapshot> tornadoes = TornadoAnimations.active(partial);
+		for (TornadoAnimations.Snapshot tornado : tornadoes) {
+			double cos = Math.cos(tornado.angle());
+			double sin = Math.sin(tornado.angle());
+			float[] points = tornado.points();
+			for (int i = 0; i + 2 < points.length; i += 3) {
+				double dx = points[i] - tornado.x();
+				double dz = points[i + 2] - tornado.z();
+				float x = (float) (tornado.x() + dx * cos - dz * sin);
+				float z = (float) (tornado.z() + dx * sin + dz * cos);
+				TORNADO_MATRIX.set(pose.last().pose()).translate(x, points[i + 1], z);
+				renderBox(TORNADO_MATRIX, builder, -0.055f, -0.055f, -0.055f, 0.055f, 0.055f, 0.055f,
+						0.72f, 0.78f, 0.86f, tornado.alpha());
 			}
 		}
 

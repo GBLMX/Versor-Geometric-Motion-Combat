@@ -1,0 +1,10 @@
+{
+	"config.versormotion.title": "Versor Motion",
+	"config.versormotion.category.visuals": "Visuals",
+	"config.versormotion.swing_particles": "Swing particles",
+	"config.versormotion.swing_particles.tooltip": "Emit the server-baked swing trail as particles.",
+	"config.versormotion.arc_mesh": "Arc mesh",
+	"config.versormotion.arc_mesh.tooltip": "Draw the blade arc the server adjudicated.",
+	"config.versormotion.camera_shake": "Camera shake (%)",
+	"config.versormotion.camera_shake.tooltip": "Scales the damage camera shake; 0 disables it."
+}

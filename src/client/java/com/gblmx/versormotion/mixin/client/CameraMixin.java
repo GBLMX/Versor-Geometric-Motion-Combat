@@ -2,6 +2,7 @@ package com.gblmx.versormotion.mixin.client;
 
 import com.gblmx.versormotion.client.CameraShake;
 import com.gblmx.versormotion.client.RollAnimations;
+import com.gblmx.versormotion.client.VersorClientConfig;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -31,7 +32,9 @@ public abstract class CameraMixin {
 		}
 		float partial = tracker.getGameTimeDeltaPartialTick(false);
 		float roll = RollAnimations.cameraRoll(minecraft.player.getId());
-		float shake = CameraShake.envelope(minecraft, partial);
+		// Always sample the shake so its clock advances even when the
+		// configured strength is zero.
+		float shake = CameraShake.envelope(minecraft, partial) * VersorClientConfig.cameraShakeScale();
 		if (shake <= 0f && roll == 0f) {
 			return;
 		}

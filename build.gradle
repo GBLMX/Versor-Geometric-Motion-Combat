@@ -38,12 +38,24 @@ repositories {
 		url = 'https://api.modrinth.com/maven'
 		content { includeGroup 'maven.modrinth' }
 	}
+	maven {
+		name = 'Shedaniel'
+		url = 'https://maven.shedaniel.me/'
+	}
+	maven {
+		name = 'TerraformersMC'
+		url = 'https://maven.terraformersmc.com/releases/'
+	}
 }
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	// Client configuration screen and its Mod Menu integration.
+	implementation "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
+	compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	runtimeOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 	// Shader pipeline for local visual testing (Iris needs its pinned Sodium build).
 	runtimeOnly "maven.modrinth:iris:1.11.7+26.3-fabric"
 	runtimeOnly "maven.modrinth:sodium:mc26.3-0.9.2-fabric"
@@ -90,9 +102,16 @@ tasks.register('gaTest', JavaExec) {
 	mainClass = 'vsr.GaTest'
 }
 
+tasks.register('weTest', JavaExec) {
+	group = 'verification'
+	description = 'Runs the WorldEdit-style selection, shape, clipboard and undo checks (WeChecks).'
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.gblmx.versormotion.wedit.WeChecks'
+}
+
 tasks.register('combatTest', JavaExec) {
 	group = 'verification'
-	description = 'Runs the swing, guard-plane and field-bake checks (CombatChecks).'
+	description = 'Runs the swing, guard-plane, field-bake and tornado checks (CombatChecks).'
 	classpath = sourceSets.test.runtimeClasspath
 	mainClass = 'com.gblmx.versormotion.combat.CombatChecks'
 }
