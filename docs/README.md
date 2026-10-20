@@ -21,6 +21,7 @@ Combat. The top-level [README](../README.md) is the project landing page.
 | [Math and physics](MATH_PHYSICS.md) | Clifford algebra, E3/PGA3/CGA3, twist kinematics, field calculus, combat and fluid models. |
 | [Kernel scheduling](../lib/versor-java/docs/KERNEL_SCHEDULING.md) | Dense/sparse/batch/matrix kernels, dispatch thresholds, measured optimizations. |
 | [Performance report](../lib/versor-java/PERFORMANCE.md) | Benchmark methodology and results for the math core. |
+| [Manim environment](../tools/manim/README.md) | Fixed uv/ManimGL setup, versor-java rotor scene, migrated STA scene. |
 
 ## Project policy
 

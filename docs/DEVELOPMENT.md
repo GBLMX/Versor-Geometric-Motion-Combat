@@ -88,6 +88,23 @@ Read [`PERFORMANCE.md`](../lib/versor-java/PERFORMANCE.md) before changing a
 kernel threshold. The report records failed optimizations; do not redo them
 without a new measurement.
 
+## Manim visualization
+
+The ManimGL environment is pinned by `tools/manim/pyproject.toml` and
+`tools/manim/uv.lock` (Python 3.14, ManimGL git commit, `av`). It no longer
+depends on `/tmp`.
+
+```bash
+cd tools/manim
+uv sync --frozen --no-config
+./test.sh
+```
+
+`test.sh` runs the 454 algebra checks, exports `data/versor-rotor.json` using
+`vsr.E3`, and renders `videos/VersorRotor.mp4`. The STA scene is under
+`tools/manim/sta/` and requires Wolfram Engine 15.0. See
+[`tools/manim/README.md`](../tools/manim/README.md).
+
 ## Code map
 
 | Path | Responsibility |

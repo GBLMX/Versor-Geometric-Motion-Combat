@@ -176,6 +176,20 @@ data/versormotion/combat.json
 [`lib/versor-java/PERFORMANCE.md`](lib/versor-java/PERFORMANCE.md) 和
 [`lib/versor-java/docs/KERNEL_SCHEDULING.md`](lib/versor-java/docs/KERNEL_SCHEDULING.md)。
 
+## 可视化
+
+[`tools/manim/`](tools/manim/README.md) 固定了 ManimGL 环境
+（`pyproject.toml` + `uv.lock`），包含由 `versor-java` 数据驱动的 E3 转子场景，
+以及迁移后的 STA/Cl(1,3) 场景。联调测试：
+
+```bash
+cd tools/manim
+./test.sh
+```
+
+脚本会跑 454 项代数检查、用 `vsr.E3` 导出 61 个采样点，并渲染
+`videos/VersorRotor.mp4`。
+
 ## 项目结构
 
 ```text
@@ -191,6 +205,7 @@ src/client/java/...        渲染、动画、镜头、粒子
 src/main/resources/        模组元数据、mixin、数据包默认值
 src/test/java/...          独立 combat/we 检查
 lib/versor-java/           纯 Java 几何代数核心（子模块）
+tools/manim/               固定 uv/ManimGL 场景与 versor-java 桥
 docs/                      架构、命令、数学、开发文档
 ```
 

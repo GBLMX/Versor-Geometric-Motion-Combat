@@ -1,0 +1,15 @@
+[project]
+name = "versor-manim"
+version = "0.1.0"
+description = "ManimGL scenes driven by versor-java data"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "manimgl",
+    "av",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+manimgl = { git = "https://github.com/3b1b/manim.git", rev = "fafa083a4fb274bba9cabde0b6e2f50ba6da0622" }

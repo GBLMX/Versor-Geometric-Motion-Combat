@@ -184,6 +184,20 @@ The math core also has dense, sparse, batch, matrix, JMH, and multicore
 benchmarks. See [`lib/versor-java/PERFORMANCE.md`](lib/versor-java/PERFORMANCE.md)
 and [`lib/versor-java/docs/KERNEL_SCHEDULING.md`](lib/versor-java/docs/KERNEL_SCHEDULING.md).
 
+## Visualization
+
+[`tools/manim/`](tools/manim/README.md) contains the fixed ManimGL environment
+(`pyproject.toml` + `uv.lock`), an E3 rotor scene driven by `versor-java`, and
+the migrated STA/Cl(1,3) scene. Run the integration test with:
+
+```bash
+cd tools/manim
+./test.sh
+```
+
+It runs the 454 algebra checks, exports 61 samples from `vsr.E3`, and renders
+`videos/VersorRotor.mp4`.
+
 ## Project layout
 
 ```text
@@ -199,6 +213,7 @@ src/client/java/...        rendering, animation, camera, particles
 src/main/resources/        mod metadata, mixins, datapack defaults
 src/test/java/...          standalone combat/we checks
 lib/versor-java/           pure-Java geometric algebra core (submodule)
+tools/manim/               fixed uv/ManimGL scenes and versor-java bridge
 docs/                      architecture, commands, math, development
 ```
 

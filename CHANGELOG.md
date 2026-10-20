@@ -22,6 +22,8 @@ of Keep a Changelog; versions use `MAJOR.MINOR.PATCH`.
   paths; 454 standalone checks.
 - Math/physics, architecture, kernel scheduling, command, configuration, and
   development documentation.
+- Fixed uv/ManimGL environment under `tools/manim/` with a versor-java-driven
+  rotor scene and the migrated STA/Cl(1,3) scene.
 - GitHub build workflow and issue/PR templates.
 
 ### Compatibility

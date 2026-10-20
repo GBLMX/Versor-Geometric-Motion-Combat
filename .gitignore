@@ -9,3 +9,11 @@ build/
 run/
 *.log
 .idea/
+
+# Python / Manim
+.venv/
+__pycache__/
+*.pyc
+tools/manim/videos/
+tools/manim/bridge/out/
+tools/manim/data/versor-rotor.json
