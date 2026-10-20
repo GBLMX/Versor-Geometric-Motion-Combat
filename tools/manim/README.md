@@ -66,7 +66,9 @@ class Demo(ThreeDScene):
         self.play(ShowCreation(CGA.sphere(0, 0, 0, 1).to_mobject(color=TEAL)))
 ```
 
-Geometry wrappers expose `.mv` for algebra and `.to_mobject()` for Manim:
+Geometry wrappers keep the data a scene needs: `Point`, `Plane`, and
+`CGASphere` expose `.mv` for algebra; `Line` keeps its endpoints for `Line3D`.
+All of them provide `.to_mobject()`.
 
 | Preset | Construction | Mobject |
 |---|---|---|
