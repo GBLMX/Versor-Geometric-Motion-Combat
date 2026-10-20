@@ -1,0 +1,4 @@
+out/
+out-test/
+out-blaze3d/
+*.class
