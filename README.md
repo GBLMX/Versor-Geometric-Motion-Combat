@@ -5,7 +5,7 @@ multivector fields from the [versor-java](https://github.com/GBLMX/versor-java) 
 
 ## 当前状态
 
-- 数学核心以 git submodule 引入（`lib/versor-java`），201 项断言通过。
+- 数学核心以 git submodule 引入（`lib/versor-java`），210 项断言通过。
 - 客户端渲染 spike：
   - `Motion.rotation` 驱动的 PGA motor 立方体（玩家前方 3 格）；
   - 由多重向量场 `F(x) = (-y, x, 0)` 积分出的场流线；
