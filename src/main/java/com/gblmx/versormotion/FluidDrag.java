@@ -22,6 +22,13 @@ import net.minecraft.world.phys.Vec3;
 public final class FluidDrag {
 	public static final double WATER_DENSITY = 1000.0;
 	public static final double DRAG_COEFFICIENT = 1.1;
+	/** Real gravity 10 m/s^2 at 1 block = 1 m and 20 ticks/s. */
+	public static final double GRAVITY_PER_TICK = 10.0 / 400.0;
+	/** Vanilla air gravity, used to keep slow-falling proportional. */
+	public static final double VANILLA_GRAVITY = 0.08;
+	public static final double GRAVITY_SCALE = GRAVITY_PER_TICK / VANILLA_GRAVITY;
+	/** 0.42 -> 0.252 keeps the vanilla jump apex at ~1.25 blocks under 0.025 g. */
+	public static final float JUMP_SCALE = 0.6f;
 
 	private FluidDrag() {}
 
@@ -61,6 +68,22 @@ public final class FluidDrag {
 		// 0.96 Dolphin's Grace. Keep that relative benefit in the quadratic model.
 		double dragScale = Math.max(0.05, (1.0 - slowDown) / 0.2);
 		return apply(velocity, vanilla, WATER_DENSITY, entity.getBbWidth(), height, submerged, dragScale);
+	}
+
+	/**
+	 * Replaces vanilla's {@code -baseGravity/16} fudge with real gravity and
+	 * neutral buoyancy: the submerged fraction cancels that share of it.
+	 * Bubble columns keep their scripted vanilla behaviour.
+	 */
+	public static Vec3 gravityStep(LivingEntity entity, Vec3 movement, double baseGravity) {
+		if (inBubbleColumn(entity)) {
+			return entity.getFluidFallingAdjustedMovement(baseGravity, movement.y <= 0.0, movement);
+		}
+		double height = entity.getBbHeight();
+		double fluidHeight = entity.getFluidHeight(FluidTags.WATER);
+		double submerged = height > 1e-9 ? Math.min(1.0, Math.max(0.0, fluidHeight / height)) : 0.0;
+		double net = -GRAVITY_PER_TICK * (1.0 - submerged);
+		return new Vec3(movement.x, movement.y + net, movement.z);
 	}
 
 	private static boolean inBubbleColumn(LivingEntity entity) {

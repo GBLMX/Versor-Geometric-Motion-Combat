@@ -23,4 +23,32 @@ public abstract class LivingEntityFluidDragMixin {
 	private Vec3 versormotion$quadraticDrag(Vec3 velocity, double x, double y, double z) {
 		return FluidDrag.applyWater((LivingEntity) (Object) this, velocity, velocity.multiply(x, y, z), x);
 	}
+
+	@Redirect(
+			method = "travelInWater(Lnet/minecraft/world/phys/Vec3;DZD)V",
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/world/entity/LivingEntity;getFluidFallingAdjustedMovement(DZLnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;"))
+	private Vec3 versormotion$waterGravity(LivingEntity self, double baseGravity, boolean isFalling, Vec3 movement) {
+		return FluidDrag.gravityStep(self, movement, baseGravity);
+	}
+
+	@Redirect(
+			method = "travelInAir(Lnet/minecraft/world/phys/Vec3;)V",
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/world/entity/LivingEntity;getEffectiveGravity()D"))
+	private double versormotion$airGravity(LivingEntity self) {
+		// Scales slow falling (0.01) with the rest, so the relative effect survives.
+		return ((LivingEntityAccessor) self).versormotion$effectiveGravity() * FluidDrag.GRAVITY_SCALE;
+	}
+
+	@Redirect(
+			method = "jumpFromGround()V",
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/world/entity/LivingEntity;getJumpPower()F"))
+	private float versormotion$jumpPower(LivingEntity self) {
+		return ((LivingEntityAccessor) self).versormotion$jumpPower() * FluidDrag.JUMP_SCALE;
+	}
 }
