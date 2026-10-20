@@ -22,6 +22,9 @@
 	},
 	"mixins": [
 		{
+			"config": "versormotion.mixins.json"
+		},
+		{
 			"config": "versormotion.client.mixins.json",
 			"environment": "client"
 		}

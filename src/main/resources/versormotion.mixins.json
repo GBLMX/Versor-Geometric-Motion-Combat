@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "com.gblmx.versormotion.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"LivingEntityFluidDragMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
