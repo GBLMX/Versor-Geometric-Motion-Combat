@@ -77,6 +77,7 @@ JAVA_HOME=~/.jdks/jbrsdk-25.0.3 ./gradlew runClient
 
 ```
 lib/versor-java/            纯数学核心 + JOML 适配（git submodule）
+docs/MATH_PHYSICS.md        几何代数、PGA/CGA、运动学、场论与战斗/流体推导
 src/main/java/com/...       公共入口、combat 判定、field 烘焙、wedit 编辑核心、Display 变换、网络包
 src/client/java/com/...     客户端渲染、动画、镜头、自定义粒子与 mixin
 src/main/resources/         fabric.mod.json、mixin 配置
