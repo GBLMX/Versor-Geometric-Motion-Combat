@@ -74,6 +74,87 @@ class BridgeTests(unittest.TestCase):
         )
         self.assertEqual(list(mobjects), ["curve"])
 
+    def test_bars_builds_chart(self):
+        from manimlib import BarChart
+
+        data = record(
+            id="bars",
+            kind="bars",
+            values=[1.0, 2.0],
+            categories=["a", "b"],
+            points=None,
+            style={"color": "#00A8FF"},
+        )
+        self.assertIsInstance(build_mobject(data, None), BarChart)
+
+    def test_table_builds_group(self):
+        from manimlib import VGroup
+
+        data = record(
+            id="table",
+            kind="table",
+            header=["a", "b"],
+            rows=[[1, "x"], [2, "y"]],
+            points=None,
+            style={"font_size": 20},
+        )
+        table = build_mobject(data, None)
+        self.assertIsInstance(table, VGroup)
+        self.assertGreater(len(table.submobjects), 0)
+
+    def test_surface_rejects_bad_shape(self):
+        data = record(
+            id="surface",
+            kind="surface",
+            shape=[2, 2],
+            points=[[0, 0, 0]],
+        )
+        with self.assertRaisesRegex(ValueError, "shape"):
+            validate_records([data])
+
+    def test_surface_builds_parametric_surface(self):
+        from manimlib import ParametricSurface, ThreeDAxes
+
+        points = [
+            [0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [1.0, 1.0, 1.0],
+        ]
+        data = record(
+            id="surface",
+            kind="surface",
+            shape=[2, 2],
+            points=points,
+        )
+        axes = ThreeDAxes(
+            x_range=(0, 1, 1),
+            y_range=(0, 1, 1),
+            z_range=(0, 1, 1),
+            width=4,
+            height=4,
+            depth=4,
+        )
+        self.assertIsInstance(build_mobject(data, axes), ParametricSurface)
+
+    def test_points3d_builds_group(self):
+        from manimlib import Group, ThreeDAxes
+
+        data = record(
+            id="scatter",
+            kind="points3d",
+            points=[[0, 0, 0], [1, 1, 1]],
+        )
+        axes = ThreeDAxes(
+            x_range=(0, 1, 1),
+            y_range=(0, 1, 1),
+            z_range=(0, 1, 1),
+            width=4,
+            height=4,
+            depth=4,
+        )
+        self.assertIsInstance(build_mobject(data, axes), Group)
+
     def test_series_value_interpolates(self):
         series = record(id="series", kind="scalar_series", values=[0.0, 10.0])
         self.assertAlmostEqual(series_value(series, 0.25), 2.5)

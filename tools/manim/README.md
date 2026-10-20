@@ -13,7 +13,8 @@ Clifford algebra library written for animation authoring.
 | `ga_demo.py` | Rotor, motor, plane, line, point, and sphere demo. |
 | `versor_scene.py` | Scene driven by `data/versor-rotor.json` from `versor-java`. |
 | `bridge_data/` | Wolfram exporter and checked-in `data/demo.json` following the flat record contract. |
-| `bridge_scene.py` | ManimGL renderer for the flat JSON records. |
+| `bridge_scene.py` | ManimGL renderer for the flat JSON curves and scalar series. |
+| `bridge_showcase.py` | Bars/table scene and 3D surface/curve/scatter scene. |
 | `bridge/VersorManimDump.java` | Generates the rotor samples using `vsr.E3`. |
 | `sta/` | The migrated STA/Cl(1,3) scene and Wolfram exporter. |
 | `tests/` | `versor_ga` algebra and Manim adapter tests. |
@@ -130,11 +131,16 @@ Supported `kind` values:
 | `sampled_polyline` | `points: [[x, y], ...]` or `[[x, y, z], ...]` | `VMobject`, smooth by default |
 | `parametric` | `points: [[t, x, y], ...]` or `[[t, x, y, z], ...]` | `VMobject`; `t` is dropped |
 | `scalar_series` | `values: [v0, v1, ...]` | No mobject; `series_value(record, t)` for a `ValueTracker` |
+| `bars` | `values`, optional `categories` | `BarChart` |
+| `table` | `header`, `rows` | `VGroup` grid of `Text` and `Line` |
+| `surface` | `shape: [rows, cols]`, row-major `points: [[x, y, z], ...]` | `ParametricSurface` (requires `ThreeDAxes`) |
+| `points3d` | `points: [[x, y, z], ...]` | `Group` of small `Sphere`s (requires `ThreeDAxes`) |
 
 `versor_ga.bridge` validates ids, kinds, dimensions, and numeric payloads.
 `build_mobject` / `build_mobjects` convert with `axes.c2p`, so the axes ranges
-must cover the Wolfram sampling domain. `style` only controls color, stroke
-width, and `smooth`; the palette default is `KDE.text`.
+must cover the Wolfram sampling domain. `style` carries per-kind visual options
+(`color`, `stroke_width`, `smooth`, `opacity`, `radius`, `font_size`, and
+table grid/header colors); the palette default is `KDE.text`.
 
 Generate the checked-in demo from `tools/manim` (the script writes a relative
 path because Wolfram's CJK path handling is unreliable on this machine):
@@ -143,6 +149,8 @@ path because Wolfram's CJK path handling is unreliable on this machine):
 cd tools/manim
 wolframscript -file bridge_data/generate_data.wls
 uv run --frozen --no-config manimgl bridge_scene.py JsonBridgeScene -l -w --video_dir videos
+uv run --frozen --no-config manimgl bridge_showcase.py BridgeChartsScene -l -w --video_dir videos
+uv run --frozen --no-config manimgl bridge_showcase.py Bridge3DScene -l -w --video_dir videos
 ```
 
 The Wolfram side exports `Normal[records]` to `bridge_data/data/demo.json`.
@@ -157,8 +165,9 @@ uv run --frozen --no-config manimgl ga_demo.py VersorGADemo -l -w --video_dir vi
 ```
 
 `tests/` covers basis products, E3/PGA/CGA round trips, Manim mobject creation,
-the rotor/motor animations, and the flat JSON bridge. `ga_demo.py` renders
-`videos/VersorGADemo.mp4`; `bridge_scene.py` renders the checked-in flat data.
+the rotor/motor animations, and the flat JSON bridge including bars, tables,
+surface grids, and 3D points. `ga_demo.py` renders `videos/VersorGADemo.mp4`;
+`bridge_scene.py` and `bridge_showcase.py` render the checked-in flat data.
 
 ## Integration test
 
@@ -175,9 +184,11 @@ The script:
 4. runs `bridge_data/generate_data.wls` when `wolframscript` is available and
    asserts the flat records (otherwise uses the checked-in JSON);
 5. runs the `versor_ga` and bridge unit tests;
-6. renders `VersorRotor` and `JsonBridgeScene` at low quality into `videos/`.
+6. renders `VersorRotor`, `JsonBridgeScene`, `BridgeChartsScene`, and
+   `Bridge3DScene` at low quality into `videos/`.
 
-Expected outputs: `videos/VersorRotor.mp4` and `videos/JsonBridgeScene.mp4`.
+Expected outputs: `VersorRotor.mp4`, `JsonBridgeScene.mp4`,
+`BridgeChartsScene.mp4`, and `Bridge3DScene.mp4`.
 
 ## STA scene
 

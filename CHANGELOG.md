@@ -29,9 +29,10 @@ of Keep a Changelog; versions use `MAJOR.MINOR.PATCH`.
 - `versor_ga.KDE` palette sampled from the active KDE `CachyOSNordLightly`
   scheme plus fish/zsh syntax colors; demo, rotor, and STA scenes use it.
 - Flat Wolfram -> JSON -> ManimGL bridge (`versor_ga.bridge`) with validated
-  `sampled_polyline`, `parametric`, and `scalar_series` records, a Wolfram
-  exporter, and `bridge_scene.py`; `test.sh` regenerates and validates the
-  bridge data when `wolframscript` is available.
+  `sampled_polyline`, `parametric`, `scalar_series`, `bars`, `table`, `surface`,
+  and `points3d` records, a Wolfram exporter, and 2D/3D showcase scenes;
+  `test.sh` regenerates and validates the bridge data when `wolframscript` is
+  available.
 - Cross-library GA benchmark under `tools/bench-ga/` for `versor-java`,
   `clifford`, and `kingdon`.
 - GitHub build workflow and issue/PR templates.

@@ -18,6 +18,12 @@ from versor_ga.bridge import build_mobjects, load_records, series_value
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RECORDS = load_records(os.path.join(HERE, "bridge_data", "data", "demo.json"))
+CURVES = [
+    record
+    for record in RECORDS
+    if record["kind"] == "sampled_polyline"
+    and all(len(point) == 2 for point in record["points"])
+]
 
 
 class JsonBridgeScene(Scene):
@@ -46,7 +52,7 @@ class JsonBridgeScene(Scene):
 
         self.play(ShowCreation(axes), FadeIn(title), FadeIn(subtitle))
 
-        curves = build_mobjects(RECORDS, axes)
+        curves = build_mobjects(CURVES, axes)
         self.play(*[ShowCreation(curve) for curve in curves.values()], run_time=1.5)
 
         series = next(record for record in RECORDS if record["kind"] == "scalar_series")

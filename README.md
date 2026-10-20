@@ -190,8 +190,9 @@ and [`lib/versor-java/docs/KERNEL_SCHEDULING.md`](lib/versor-java/docs/KERNEL_SC
 (`pyproject.toml` + `uv.lock`), `versor_ga` (a small E3/PGA/CGA library for scene
 authoring), an E3 rotor scene driven by `versor-java`, and the migrated STA/Cl(1,3)
 scene. The `versor_ga.KDE` palette follows the active KDE CachyOS Nord scheme and
-the fish/zsh syntax colors. `bridge_scene.py` demonstrates the flat
-Wolfram -> JSON -> ManimGL contract in `versor_ga.bridge`. Run the integration
+the fish/zsh syntax colors. `bridge_scene.py` and `bridge_showcase.py`
+demonstrate the flat Wolfram -> JSON -> ManimGL contract in `versor_ga.bridge`,
+including curves, bars, tables, surfaces, and 3D points. Run the integration
 test with:
 
 ```bash

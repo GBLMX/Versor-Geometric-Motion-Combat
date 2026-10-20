@@ -102,8 +102,10 @@ use it by default.
 
 The flat Wolfram -> JSON bridge is `versor_ga/bridge.py`: records carry
 `id`, `kind`, `style`, and either `points` or `values`. `bridge_data/generate_data.wls`
-exports `bridge_data/data/demo.json`; `bridge_scene.py` consumes it without
-invoking Wolfram during rendering. Rebuild the demo data from `tools/manim`:
+exports `bridge_data/data/demo.json`; `bridge_scene.py` consumes the 2D curves
+and `bridge_showcase.py` renders bars, a table, a 3D surface, a space curve, and
+scatter points without invoking Wolfram during rendering. Rebuild the demo data
+from `tools/manim`:
 
 ```bash
 wolframscript -file bridge_data/generate_data.wls
