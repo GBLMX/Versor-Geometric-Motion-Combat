@@ -55,4 +55,8 @@ public final class RollAnimations {
 		float t = progress(entityId);
 		return t < 0f ? 0f : (float) Math.sin(Math.PI * t);
 	}
+
+	public static void clear() {
+		ACTIVE.clear();
+	}
 }

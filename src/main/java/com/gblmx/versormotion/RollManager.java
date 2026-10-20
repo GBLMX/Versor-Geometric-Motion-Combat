@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.gblmx.versormotion.net.RollPayload;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
@@ -22,6 +23,11 @@ public final class RollManager {
 	private static final Map<UUID, Long> LAST_ROLL = new HashMap<>();
 
 	private RollManager() {}
+
+	public static void init() {
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
+				LAST_ROLL.remove(handler.getPlayer().getUUID()));
+	}
 
 	public static boolean start(ServerPlayer player) {
 		long now = player.level().getGameTime();

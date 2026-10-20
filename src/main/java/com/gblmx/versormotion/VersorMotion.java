@@ -14,6 +14,7 @@ public class VersorMotion implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		PayloadTypeRegistry.clientboundPlay().register(RollPayload.TYPE, RollPayload.CODEC);
+		RollManager.init();
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
 			LOGGER.info("Registering versor commands");
 			try {

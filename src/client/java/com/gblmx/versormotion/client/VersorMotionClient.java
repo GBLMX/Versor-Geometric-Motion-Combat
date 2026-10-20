@@ -5,6 +5,7 @@ import java.util.OptionalDouble;
 
 import com.gblmx.versormotion.VersorMotion;
 import com.gblmx.versormotion.net.RollPayload;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
@@ -66,6 +67,7 @@ public final class VersorMotionClient implements ClientModInitializer {
 		LevelRenderEvents.END_MAIN.register(this::render);
 		ClientPlayNetworking.registerGlobalReceiver(RollPayload.TYPE, (payload, context) ->
 				context.client().execute(() -> RollAnimations.start(payload.entityId(), payload.duration())));
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> RollAnimations.clear());
 	}
 
 	private void extract(LevelExtractionContext context) {
