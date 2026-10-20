@@ -61,7 +61,7 @@ public final class VersorMotionClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		LevelExtractionEvents.END_EXTRACTION.register(this::extract);
-		LevelRenderEvents.AFTER_TRANSLUCENT_TERRAIN.register(this::render);
+		LevelRenderEvents.END_MAIN.register(this::render);
 	}
 
 	private void extract(LevelExtractionContext context) {
@@ -76,7 +76,7 @@ public final class VersorMotionClient implements ClientModInitializer {
 		Matrix4f motor = Blaze3D.matrix(spin.motor(seconds));
 
 		Vec3 eye = client.player.getEyePosition();
-		Vec3 center = eye.add(client.player.getLookAngle().scale(3.0));
+		Vec3 center = eye.add(client.player.getLookAngle().scale(4.0));
 
 		float[] dots = new float[SEEDS * STEPS * 3];
 		int index = 0;
@@ -120,13 +120,13 @@ public final class VersorMotionClient implements ClientModInitializer {
 
 		VertexConsumer builder = BUFFER.getVertexBuilder(draw);
 		renderBox(model, builder, -0.75f, -0.75f, -0.75f, 0.75f, 0.75f, 0.75f,
-				0.35f, 0.8f, 1.0f, 0.35f);
+				0.35f, 0.8f, 1.0f, 0.22f);
 
 		float[] dots = state.dots();
 		for (int i = 0; i + 2 < dots.length; i += 3) {
 			Matrix4f dot = new Matrix4f(pose.last().pose());
 			dot.translate(dots[i], dots[i + 1], dots[i + 2]);
-			renderBox(dot, builder, -0.035f, -0.035f, -0.035f, 0.035f, 0.035f, 0.035f,
+			renderBox(dot, builder, -0.02f, -0.02f, -0.02f, 0.02f, 0.02f, 0.02f,
 					1.0f, 0.55f, 0.2f, 0.85f);
 		}
 

@@ -9,7 +9,10 @@ multivector fields from the [versor-java](https://github.com/GBLMX/versor-java) 
 - 客户端渲染 spike：
   - `Motion.rotation` 驱动的 PGA motor 立方体（玩家前方 3 格）；
   - 由多重向量场 `F(x) = (-y, x, 0)` 积分出的场流线；
-  - 走 26.x 的 extraction / drawing 两阶段，经 `StagedVertexBuffer` 提交。
+  - 走 26.x 的 extraction / drawing 两阶段，经 `StagedVertexBuffer` 提交；
+  - 绘制注册在 `LevelRenderEvents.END_MAIN`：`AFTER_TRANSLUCENT_TERRAIN` 位于主
+    render pass 内部，`StagedVertexBuffer.upload()` 会在那里抛
+    “Close the existing render pass before performing additional commands”。
 - 服务端权威判定、姿态同步、粒子烘焙尚未接入。
 
 ## 环境
