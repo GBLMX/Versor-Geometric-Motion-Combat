@@ -5,7 +5,7 @@ multivector fields from the [versor-java](https://github.com/GBLMX/versor-java) 
 
 ## 当前状态
 
-- 数学核心以 git submodule 引入（`lib/versor-java`），181 项断言通过。
+- 数学核心以 git submodule 引入（`lib/versor-java`），183 项断言通过。
 - 客户端渲染 spike：
   - `Motion.rotation` 驱动的 PGA motor 立方体（玩家前方 3 格）；
   - 由多重向量场 `F(x) = (-y, x, 0)` 积分出的场流线；
@@ -62,7 +62,7 @@ JAVA_HOME=~/.jdks/jbrsdk-25.0.3 ./gradlew runClient
 数学检查：
 
 ```bash
-./gradlew gaTest        # 181 checks
+./gradlew gaTest        # 183 checks
 ./gradlew combatTest    # 245 checks（115 刀弧 + 9 盾面 + 79 场烘焙 + 16 龙卷风 + 26 规则）
 ./gradlew weTest        # 38 checks（选区 / 形体 / 剪贴板 / undo）
 ```
