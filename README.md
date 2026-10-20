@@ -5,7 +5,7 @@ multivector fields from the [versor-java](https://github.com/GBLMX/versor-java) 
 
 ## 当前状态
 
-- 数学核心以 git submodule 引入（`lib/versor-java`），412 项断言通过。
+- 数学核心以 git submodule 引入（`lib/versor-java`），453 项断言通过。
 - 客户端渲染 spike：
   - `Motion.rotation` 驱动的 PGA motor 立方体（玩家前方 3 格）；
   - 由多重向量场 `F(x) = (-y, x, 0)` 积分出的场流线；
@@ -35,7 +35,8 @@ multivector fields from the [versor-java](https://github.com/GBLMX/versor-java) 
   `TornadoPayload`（352 点 / 200 tick），客户端绕轴旋转、淡入淡出，并从同一
   点云每 tick 发射 `CLOUD` 雾气与 `ASH` 地面碎屑。
 - 镜头：翻滚时相机侧倾，受伤时按伤害量衰减抖动（`Camera.extractRenderState` 注入）。
-- CGA：`vsr.Conformal` 提供共形点/球/平面/圆（Cl(4,1)），含点-球、点-圆关联检查。
+- CGA：`vsr.Conformal` 提供共形点/球/平面/圆（Cl(4,1)），含点-球、点-圆关联检查，
+  以及点到球面/平面的距离与最近点。
 - 创世神式编辑：`/we` 命令树 + `//` 拦截，提供选区、set/replace、球/圆柱、copy/cut/paste、
   undo/redo；单次编辑上限 32768 方块，详见下文。
 - Display Entity 兼容：`DisplayTransforms` 读取/写回完整 `transformation`，
@@ -65,7 +66,7 @@ JAVA_HOME=~/.jdks/jbrsdk-25.0.3 ./gradlew runClient
 数学检查：
 
 ```bash
-./gradlew gaTest        # 412 checks
+./gradlew gaTest        # 453 checks
 ./gradlew combatTest    # 245 checks（115 刀弧 + 9 盾面 + 79 场烘焙 + 16 龙卷风 + 26 规则）
 ./gradlew weTest        # 38 checks（选区 / 形体 / 剪贴板 / undo）
 ```
