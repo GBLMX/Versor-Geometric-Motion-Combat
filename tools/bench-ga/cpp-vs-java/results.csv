@@ -1,0 +1,17 @@
+implementation,compiler_runtime,operation,ns_per_op,note
+cpp_upstream_compile,GCC 16.2.1,e3_gp,1.92,best of 3
+cpp_fork_compile,GCC 16.2.1,e3_gp,1.87,best of 3
+cpp_fork_runtime,GCC 16.2.1,e3_gp,46.50,best of 3
+java_dense,JDK 25.0.3 / JMH 1.37,e3_gp,46.74,JMH average +/- 1.88
+cpp_upstream_compile,GCC 16.2.1,pga_spin,8.96,best of 3
+cpp_fork_compile,GCC 16.2.1,pga_spin,8.83,best of 3
+cpp_fork_runtime,GCC 16.2.1,pga_spin,29.98,best of 3
+java_dense,JDK 25.0.3 / JMH 1.37,pga_spin,36.01,JMH average +/- 2.18
+cpp_upstream_compile,GCC 16.2.1,e3_batch,3.96,best of 3; scalar loop baseline
+cpp_fork_compile,GCC 16.2.1,e3_batch,4.01,best of 3; scalar loop baseline
+cpp_fork_runtime,GCC 16.2.1,e3_batch,7.43,best of 3; fast batch path
+java_dense,JDK 25.0.3 / JMH 1.37,e3_batch,8.53,JMH average +/- 0.70
+cpp_upstream_compile,GCC 16.2.1,pga_batch,7.89,best of 3; scalar loop baseline
+cpp_fork_compile,GCC 16.2.1,pga_batch,7.98,best of 3; scalar loop baseline
+cpp_fork_runtime,GCC 16.2.1,pga_batch,16.83,best of 3; fast batch path
+java_dense,JDK 25.0.3 / JMH 1.37,pga_batch,19.21,JMH average +/- 1.14
