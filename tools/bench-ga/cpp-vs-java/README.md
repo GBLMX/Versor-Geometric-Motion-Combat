@@ -37,6 +37,14 @@ $CXX -std=c++26 -O3 -DNDEBUG -I "$CPP_FORK_INCLUDE" -DWITH_RUNTIME \
 /tmp/perf_fork
 ```
 
+`runtime_paths.cpp` 是 fork-only 的补充微基准，覆盖稀疏 Cl(12) 几何积与 8×8 多向量矩阵乘/求逆；不属于上面的跨语言对比表：
+
+```bash
+$CXX -std=c++26 -O3 -DNDEBUG -I "$CPP_FORK_INCLUDE" \
+    runtime_paths.cpp -o /tmp/runtime_paths
+/tmp/runtime_paths
+```
+
 ### Java JMH
 
 需要 JDK 25（或用与归档结果相同的 JVM）和 `versor-java` 自带的 JMH jar：
