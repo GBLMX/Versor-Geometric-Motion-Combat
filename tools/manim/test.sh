@@ -70,6 +70,8 @@ uv run --frozen --no-config manimgl "$HERE/bridge_showcase.py" Bridge3DScene \
   -l -w --video_dir "$HERE/videos"
 uv run --frozen --no-config manimgl "$HERE/zeta_scene.py" ZetaScene \
   -l -w --video_dir "$HERE/videos"
+uv run --frozen --no-config manimgl "$HERE/blackhole_scene.py" BlackHoleScene \
+  -l -w --video_dir "$HERE/videos"
 
 if [ ! -s "$HERE/videos/VersorRotor.mp4" ]; then
   echo "missing render: $HERE/videos/VersorRotor.mp4" >&2
@@ -91,8 +93,13 @@ if [ ! -s "$HERE/videos/ZetaScene.mp4" ]; then
   echo "missing render: $HERE/videos/ZetaScene.mp4" >&2
   exit 1
 fi
+if [ ! -s "$HERE/videos/BlackHoleScene.mp4" ]; then
+  echo "missing render: $HERE/videos/BlackHoleScene.mp4" >&2
+  exit 1
+fi
 echo "render ok: $HERE/videos/VersorRotor.mp4"
 echo "render ok: $HERE/videos/JsonBridgeScene.mp4"
 echo "render ok: $HERE/videos/BridgeChartsScene.mp4"
 echo "render ok: $HERE/videos/Bridge3DScene.mp4"
 echo "render ok: $HERE/videos/ZetaScene.mp4"
+echo "render ok: $HERE/videos/BlackHoleScene.mp4"

@@ -16,6 +16,7 @@ Clifford algebra library written for animation authoring.
 | `bridge_scene.py` | ManimGL renderer for the flat JSON curves and scalar series. |
 | `bridge_showcase.py` | Bars/table scene and 3D surface/curve/scatter scene. |
 | `zeta_scene.py` | Animated `zeta(1/2 + i t)` trajectory on the critical line. |
+| `blackhole_scene.py` | Animated Schwarzschild black hole with an E3-rotor accretion disk, using the bionickernel.com works palette. |
 | `bridge/VersorManimDump.java` | Generates the rotor samples using `vsr.E3`. |
 | `sta/` | The migrated STA/Cl(1,3) scene and Wolfram exporter. |
 | `tests/` | `versor_ga` algebra and Manim adapter tests. |
@@ -109,6 +110,11 @@ without touching the library.
 The full ANSI 0-15 set and KDE accents are in
 [`versor_ga/palette.py`](versor_ga/palette.py).
 
+`blackhole_scene.py` keeps a local `Works` palette sampled from the
+[bionickernel.com works](https://bionickernel.com/works/) pages: `#161925`
+background, `#242a3a` grid, `#66c2f2` cyan, `#47add6` blue, `#ff8a4c` orange
+and `#e8edf7` text. The shared `KDE` palette is unchanged.
+
 ## Flat JSON bridge
 
 Wolfram is the math engine; ManimGL is the renderer. The bridge contract is a
@@ -154,6 +160,7 @@ uv run --frozen --no-config manimgl bridge_scene.py JsonBridgeScene -l -w --vide
 uv run --frozen --no-config manimgl bridge_showcase.py BridgeChartsScene -l -w --video_dir videos
 uv run --frozen --no-config manimgl bridge_showcase.py Bridge3DScene -l -w --video_dir videos
 uv run --frozen --no-config manimgl zeta_scene.py ZetaScene -l -w --video_dir videos
+uv run --frozen --no-config manimgl blackhole_scene.py BlackHoleScene -m -w --video_dir videos
 ```
 
 The Wolfram side exports `Normal[records]` to `bridge_data/data/demo.json`.
@@ -189,10 +196,12 @@ The script:
    the checked-in JSON);
 5. runs the `versor_ga` and bridge unit tests;
 6. renders `VersorRotor`, `JsonBridgeScene`, `BridgeChartsScene`,
-   `Bridge3DScene`, and `ZetaScene` at low quality into `videos/`.
+   `Bridge3DScene`, `ZetaScene`, and `BlackHoleScene` at low quality into
+   `videos/`.
 
 Expected outputs: `VersorRotor.mp4`, `JsonBridgeScene.mp4`,
-`BridgeChartsScene.mp4`, `Bridge3DScene.mp4`, and `ZetaScene.mp4`.
+`BridgeChartsScene.mp4`, `Bridge3DScene.mp4`, `ZetaScene.mp4`, and
+`BlackHoleScene.mp4`.
 
 ## STA scene
 

@@ -193,7 +193,9 @@ scene. The `versor_ga.KDE` palette follows the active KDE CachyOS Nord scheme an
 the fish/zsh syntax colors. `bridge_scene.py` and `bridge_showcase.py`
 demonstrate the flat Wolfram -> JSON -> ManimGL contract in `versor_ga.bridge`,
 including curves, bars, tables, surfaces, and 3D points. `zeta_scene.py`
-animates the Riemann zeta trajectory on the critical line. Run the integration
+animates the Riemann zeta trajectory on the critical line.
+`blackhole_scene.py` animates a Schwarzschild black hole with an E3-rotor
+accretion disk using the bionickernel.com works palette. Run the integration
 test with:
 
 ```bash
@@ -203,6 +205,17 @@ cd tools/manim
 
 It runs the 454 algebra checks, exports 61 samples from `vsr.E3`, and renders
 `videos/VersorRotor.mp4`.
+
+[`tools/blackhole/`](tools/blackhole/README.md) is a standalone Schwarzschild
+null-geodesic renderer. It uses E3 bivectors for the conserved angular momentum,
+PGA3 plane/line meets for the accretion disk, and RK4 for the photon paths. The
+procedural galactic band, nebulae, stars, and a distant spiral galaxy are sampled
+through the final lensed directions:
+
+```bash
+./tools/blackhole/run.sh --out /tmp/black_hole.png
+./tools/blackhole/run.sh --validate
+```
 
 ## Benchmarks
 
